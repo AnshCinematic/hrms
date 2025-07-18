@@ -39,6 +39,7 @@ function CreateUserDialog({
   formData,
   setFormData,
   editMode,
+  readOnly,
 }) {
   const [errors, setErrors] = useState({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -75,7 +76,9 @@ function CreateUserDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle>{editMode ? "Edit User" : "Create New User"}</DialogTitle>
+      <DialogTitle>
+        {readOnly ? "My Profile" : editMode ? "Edit User" : "Create New User"}
+      </DialogTitle>
       <form onSubmit={handleSubmit} noValidate>
         <DialogContent dividers>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -91,10 +94,11 @@ function CreateUserDialog({
                       name="fullName"
                       label="Full Name"
                       fullWidth
-                      value={formData.fullName}
+                      value={formData.fullName || formData.username || ""}
                       onChange={handleChange}
                       error={!!errors.fullName}
                       helperText={errors.fullName || ""}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -102,16 +106,17 @@ function CreateUserDialog({
                       name="email"
                       label="Email Address"
                       fullWidth
-                      value={formData.email}
+                      value={formData.email || ""}
                       onChange={handleChange}
                       error={!!errors.email}
                       helperText={errors.email || ""}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <DatePicker
                       label="Date of Birth"
-                      value={formData.dob}
+                      value={formData.dob || formData.dateOfBirth || null}
                       onChange={(date) => handleDateChange("dob", date)}
                       renderInput={(params) => (
                         <TextField
@@ -119,8 +124,10 @@ function CreateUserDialog({
                           fullWidth
                           error={!!errors.dob}
                           helperText={errors.dob || ""}
+                          disabled={readOnly}
                         />
                       )}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -129,8 +136,9 @@ function CreateUserDialog({
                       name="gender"
                       label="Gender"
                       fullWidth
-                      value={formData.gender}
+                      value={formData.gender || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     >
                       <MenuItem value="Male">Male</MenuItem>
                       <MenuItem value="Female">Female</MenuItem>
@@ -144,8 +152,9 @@ function CreateUserDialog({
                       fullWidth
                       multiline
                       rows={2}
-                      value={formData.address}
+                      value={formData.address || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                 </Grid>
@@ -165,10 +174,11 @@ function CreateUserDialog({
                       name="department"
                       label="Department"
                       fullWidth
-                      value={formData.department}
+                      value={formData.department || ""}
                       onChange={handleChange}
                       error={!!errors.department}
                       helperText={errors.department || ""}
+                      disabled={readOnly}
                     >
                       {DEPARTMENT_OPTIONS.map((dept) => (
                         <MenuItem key={dept} value={dept}>
@@ -183,10 +193,11 @@ function CreateUserDialog({
                       name="role"
                       label="Designation / Role"
                       fullWidth
-                      value={formData.role}
+                      value={formData.role || formData.designation || ""}
                       onChange={handleChange}
                       error={!!errors.role}
                       helperText={errors.role || ""}
+                      disabled={readOnly}
                     >
                       {ROLE_OPTIONS.map((role) => (
                         <MenuItem key={role} value={role}>
@@ -198,7 +209,7 @@ function CreateUserDialog({
                   <Grid item xs={12} md={6}>
                     <DatePicker
                       label="Date of Joining"
-                      value={formData.doj}
+                      value={formData.doj || formData.dateOfJoining || null}
                       onChange={(date) => handleDateChange("doj", date)}
                       renderInput={(params) => (
                         <TextField
@@ -206,8 +217,10 @@ function CreateUserDialog({
                           fullWidth
                           error={!!errors.doj}
                           helperText={errors.doj || ""}
+                          disabled={readOnly}
                         />
                       )}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -215,8 +228,9 @@ function CreateUserDialog({
                       name="employmentType"
                       label="Employment Type"
                       fullWidth
-                      value={formData.employmentType}
+                      value={formData.employmentType || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -224,8 +238,9 @@ function CreateUserDialog({
                       name="workLocation"
                       label="Work Location"
                       fullWidth
-                      value={formData.workLocation}
+                      value={formData.workLocation || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -234,10 +249,11 @@ function CreateUserDialog({
                       label="Base Salary (CTC)"
                       type="number"
                       fullWidth
-                      value={formData.ctc}
+                      value={formData.ctc || formData.baseSalary || ""}
                       onChange={handleChange}
                       error={!!errors.ctc}
                       helperText={errors.ctc || ""}
+                      disabled={readOnly}
                     />
                   </Grid>
                 </Grid>
@@ -256,8 +272,9 @@ function CreateUserDialog({
                       name="accountHolderName"
                       label="Account Holder Name"
                       fullWidth
-                      value={formData.accountHolderName}
+                      value={formData.accountHolderName || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -265,8 +282,9 @@ function CreateUserDialog({
                       name="bankAccountNumber"
                       label="Bank Account Number"
                       fullWidth
-                      value={formData.bankAccountNumber}
+                      value={formData.bankAccountNumber || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -274,8 +292,9 @@ function CreateUserDialog({
                       name="ifscCode"
                       label="IFSC Code"
                       fullWidth
-                      value={formData.ifscCode}
+                      value={formData.ifscCode || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -283,8 +302,9 @@ function CreateUserDialog({
                       name="panNumber"
                       label="PAN Number"
                       fullWidth
-                      value={formData.panNumber}
+                      value={formData.panNumber || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -292,8 +312,9 @@ function CreateUserDialog({
                       name="pfAccountNo"
                       label="PF Account No (optional)"
                       fullWidth
-                      value={formData.pfAccountNo}
+                      value={formData.pfAccountNo || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
@@ -301,8 +322,9 @@ function CreateUserDialog({
                       name="nationality"
                       label="Nationality"
                       fullWidth
-                      value={formData.nationality}
+                      value={formData.nationality || ""}
                       onChange={handleChange}
+                      disabled={readOnly}
                     />
                   </Grid>
                 </Grid>
@@ -313,11 +335,13 @@ function CreateUserDialog({
 
         <DialogActions>
           <Button onClick={onClose} color="secondary">
-            Cancel
+            {readOnly ? "Close" : "Cancel"}
           </Button>
-          <Button type="submit" variant="contained" color="primary">
-            {editMode ? "Save Changes" : "Create User"}
-          </Button>
+          {!readOnly && (
+            <Button type="submit" variant="contained" color="primary">
+              {editMode ? "Save Changes" : "Create User"}
+            </Button>
+          )}
         </DialogActions>
       </form>
       <Snackbar

@@ -19,6 +19,7 @@ import {
   CardContent,
 } from "@mui/material";
 import CreateUserDialog from "../components/users/CreateUserDialog.jsx";
+import { useUser } from "../context/UserProvider";
 
 const demoUsers = [
   {
@@ -87,6 +88,8 @@ function Users() {
     nationality: "",
   });
   const [deleteIndex, setDeleteIndex] = useState(null);
+  const { user, loading: userLoading, error: userError } = useUser();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleOpen = () => {
     setEditIndex(null);
@@ -142,6 +145,7 @@ function Users() {
     setEditIndex(null);
   };
 
+  console.log(formData, users);
   const handleCreateUser = () => {
     if (editIndex !== null) {
       // Edit mode
@@ -180,6 +184,14 @@ function Users() {
       >
         Users
       </Typography>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={() => setProfileOpen(true)}
+        sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
+      >
+        View My Profile
+      </Button>
       <Button
         variant="contained"
         color="primary"
@@ -263,6 +275,15 @@ function Users() {
         formData={formData}
         setFormData={setFormData}
         editMode={editIndex !== null}
+      />
+      <CreateUserDialog
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onCreate={() => {}}
+        formData={user || {}}
+        setFormData={() => {}}
+        editMode={false}
+        readOnly={true}
       />
       {/* Delete Confirmation Dialog */}
       {deleteIndex !== null && (

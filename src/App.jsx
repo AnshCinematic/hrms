@@ -15,28 +15,31 @@ import JobDetails from "./pages/JobDetails";
 
 import "./App.css";
 import Users from "./pages/Users";
+import UserProvider from "./context/UserProvider";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        {/* MainLayout used as a wrapper for internal app routes */}
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="leaves" element={<Leaves />} />
-          <Route path="jobs" element={<Jobs />} />
-          <Route path="jobs/:jobId" element={<JobDetails />} />
-          <Route path="departments/:deptId" element={<DepartmentDetail />} />
-          <Route path="users" element={<Users />} />
-          <Route path="departments" element={<Departments />} />
-          {/* Optionally, add a 404 */}
-          <Route
-            path="*"
-            element={<div className="p-8 text-red-500">404 Not Found</div>}
-          />
-        </Route>
-      </Routes>
+      <UserProvider>
+        <Routes>
+          {/* MainLayout used as a wrapper for internal app routes */}
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="leaves" element={<Leaves />} />
+            <Route path="jobs" element={<Jobs />} />
+            <Route path="jobs/:jobId" element={<JobDetails />} />
+            <Route path="departments/:deptId" element={<DepartmentDetail />} />
+            <Route path="users" element={<Users />} />
+            <Route path="departments" element={<Departments />} />
+            {/* Optionally, add a 404 */}
+            <Route
+              path="*"
+              element={<div className="p-8 text-red-500">404 Not Found</div>}
+            />
+          </Route>
+        </Routes>
+      </UserProvider>
     </Router>
   );
 }

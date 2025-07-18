@@ -21,6 +21,8 @@ import LayersIcon from "@mui/icons-material/Layers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { VerifiedUserOutlined } from "@mui/icons-material";
 import React from "react";
+import { useUser } from "../context/UserProvider";
+import CreateUserDialog from "../components/users/CreateUserDialog.jsx";
 
 const drawerWidth = 240;
 
@@ -52,6 +54,8 @@ const USER = { name: "Alice Smith", role: "Admin" };
 export default function MainLayout() {
   const location = useLocation();
   const theme = useTheme();
+  const { user } = useUser();
+  const [profileOpen, setProfileOpen] = React.useState(false);
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f7f8fa" }}>
@@ -87,16 +91,24 @@ export default function MainLayout() {
               {APP_NAME}
             </Typography>
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              cursor: "pointer",
+            }}
+            onClick={() => setProfileOpen(true)}
+          >
             <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.light" }}>
-              {USER.name[0]}
+              {user?.username?.[0] || user?.fullName?.[0] || "A"}
             </Avatar>
             <Box>
               <Typography variant="body1" fontWeight={600} color="text.primary">
-                {USER.name}
+                {user?.username || user?.fullName || "Alice Smith"}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {USER.role}
+                {user?.designation || user?.role || "Admin"}
               </Typography>
             </Box>
           </Box>
@@ -125,13 +137,13 @@ export default function MainLayout() {
         <Box>
           <Toolbar sx={{ minHeight: 64 }} />
           <Box sx={{ px: 2, py: 3 }}>
-            <Typography
+            {/* <Typography
               variant="subtitle2"
               color="#b0b8c1"
               sx={{ mb: 2, letterSpacing: 1 }}
             >
               NAVIGATION
-            </Typography>
+            </Typography> */}
             <List>
               {navItems.map((item) => (
                 <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
@@ -173,16 +185,24 @@ export default function MainLayout() {
           </Box>
         </Box>
         <Box sx={{ px: 2, py: 3, borderTop: "1px solid #2d3843" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              cursor: "pointer",
+            }}
+            onClick={() => setProfileOpen(true)}
+          >
             <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.light" }}>
-              {USER.name[0]}
+              {user?.username?.[0] || user?.fullName?.[0] || "A"}
             </Avatar>
             <Box>
               <Typography variant="body2" fontWeight={600} color="#fff">
-                {USER.name}
+                {user?.username || user?.fullName || "Alice Smith"}
               </Typography>
               <Typography variant="caption" color="#b0b8c1">
-                {USER.role}
+                {user?.designation || user?.role || "Admin"}
               </Typography>
             </Box>
           </Box>
@@ -203,6 +223,15 @@ export default function MainLayout() {
       >
         <Outlet />
       </Box>
+      <CreateUserDialog
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onCreate={() => {}}
+        formData={user || {}}
+        setFormData={() => {}}
+        editMode={false}
+        readOnly={true}
+      />
     </Box>
   );
 }

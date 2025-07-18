@@ -23,6 +23,8 @@ import {
   CircularProgress,
   Snackbar,
   Alert,
+  Card,
+  CardContent,
 } from "@mui/material";
 import {
   ArrowBack as BackIcon,
@@ -50,12 +52,46 @@ export default function DepartmentDetail() {
     severity: "success",
   });
 
+  // CMS state for department info
+  const [deptInfo, setDeptInfo] = useState({ name: "", description: "" });
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", description: "" });
+
   // Mock department data
-  const department = {
+  const departmentColors = {
     1: { name: "Engineering", color: blue[500] },
     2: { name: "HR", color: green[500] },
     3: { name: "Sales", color: orange[500] },
-  }[deptId] || { name: "Unknown", color: "#ccc" };
+  };
+  const defaultDept = departmentColors[deptId] || {
+    name: "Unknown",
+    color: "#ccc",
+  };
+
+  // Load department info from localStorage or fallback to default
+  useEffect(() => {
+    const allDeptInfo = JSON.parse(localStorage.getItem("deptInfo")) || {};
+    const info = allDeptInfo[deptId] || {
+      name: defaultDept.name,
+      description: `Welcome to the ${defaultDept.name} department!`,
+    };
+    setDeptInfo(info);
+    setEditForm(info);
+  }, [deptId]);
+
+  // Save department info to localStorage
+  const handleSaveDeptInfo = () => {
+    const allDeptInfo = JSON.parse(localStorage.getItem("deptInfo")) || {};
+    allDeptInfo[deptId] = editForm;
+    localStorage.setItem("deptInfo", JSON.stringify(allDeptInfo));
+    setDeptInfo(editForm);
+    setEditMode(false);
+    setSnackbar({
+      open: true,
+      message: "Department info updated!",
+      severity: "success",
+    });
+  };
 
   useEffect(() => {
     // Simulate API fetch
@@ -97,6 +133,76 @@ export default function DepartmentDetail() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
+      {/* CMS Tools for Department Info */}
+      <Card
+        elevation={2}
+        sx={{ mb: 4, borderRadius: 3, maxWidth: 700, mx: "auto" }}
+      >
+        <CardContent>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+            <Avatar sx={{ bgcolor: defaultDept.color, width: 40, height: 40 }}>
+              {deptInfo.name[0]}
+            </Avatar>
+            <Typography variant="h5" fontWeight={700} color="primary.main">
+              {deptInfo.name}
+            </Typography>
+            <Button
+              size="small"
+              variant="outlined"
+              sx={{ ml: "auto" }}
+              onClick={() => setEditMode(!editMode)}
+            >
+              {editMode ? "Cancel" : "Edit"}
+            </Button>
+          </Box>
+          {editMode ? (
+            <Box
+              component="form"
+              sx={{ mt: 2 }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveDeptInfo();
+              }}
+            >
+              <TextField
+                label="Department Name"
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+                fullWidth
+                sx={{ mb: 2 }}
+                required
+              />
+              <TextField
+                label="Description"
+                value={editForm.description}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, description: e.target.value })
+                }
+                fullWidth
+                multiline
+                rows={3}
+                sx={{ mb: 2 }}
+                required
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                sx={{ fontWeight: 600 }}
+              >
+                Save
+              </Button>
+            </Box>
+          ) : (
+            <Typography variant="body1" sx={{ mt: 1, whiteSpace: "pre-line" }}>
+              {deptInfo.description}
+            </Typography>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Header Section */}
       <Box
         sx={{
@@ -119,7 +225,8 @@ export default function DepartmentDetail() {
           </Tooltip>
           <Box>
             <Typography variant="h5" component="h1" fontWeight="500">
-              {department.name} Department
+              {departmentColors[deptId]?.name || "Unknown Department"}{" "}
+              Department
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Employee Directory
@@ -197,7 +304,7 @@ export default function DepartmentDetail() {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                       <Avatar
                         sx={{
-                          bgcolor: department.color,
+                          bgcolor: departmentColors[deptId]?.color,
                           width: 36,
                           height: 36,
                         }}
