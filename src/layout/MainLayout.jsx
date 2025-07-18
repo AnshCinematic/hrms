@@ -14,6 +14,7 @@ import {
   Avatar,
   Divider,
   useTheme,
+  Paper,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WorkIcon from "@mui/icons-material/Work";
@@ -215,14 +216,41 @@ export default function MainLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: { xs: 1, sm: 3 },
+          p: 0,
           ml: `${drawerWidth}px`,
           mt: 8,
           minHeight: "100vh",
           bgcolor: "#f7f8fa",
+          width: { xs: "100vw", sm: `calc(100vw - ${drawerWidth}px)` },
+          overflowX: "hidden",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
         }}
       >
-        <Outlet />
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 800,
+            mx: "auto",
+            py: { xs: 2, sm: 4 },
+            px: { xs: 1, sm: 3 },
+            minHeight: "80vh",
+          }}
+        >
+          <Paper
+            elevation={0}
+            sx={{
+              bgcolor: "white",
+              borderRadius: 3,
+              boxShadow: 2,
+              p: { xs: 1, sm: 3 },
+              minHeight: "60vh",
+            }}
+          >
+            <Outlet />
+          </Paper>
+        </Box>
       </Box>
       <CreateUserDialog
         open={profileOpen}
