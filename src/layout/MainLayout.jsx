@@ -13,18 +13,18 @@ import {
   CssBaseline,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import FeedIcon from "@mui/icons-material/Feed";
 import WorkIcon from "@mui/icons-material/Work";
 import LayersIcon from "@mui/icons-material/Layers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { VerifiedUserOutlined } from "@mui/icons-material";
 
 const drawerWidth = 240;
 
 const navItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-  { text: "Feeds", icon: <FeedIcon />, path: "/feeds" },
   { text: "Leaves", icon: <CalendarMonthIcon />, path: "/leaves" },
   { text: "Jobs", icon: <WorkIcon />, path: "/jobs" },
+  { text: "Users", icon: <VerifiedUserOutlined />, path: "/users" },
   { text: "Departments", icon: <LayersIcon />, path: "/departments" },
 ];
 

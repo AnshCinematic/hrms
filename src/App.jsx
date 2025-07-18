@@ -13,6 +13,7 @@ import Departments from "./pages/Departments";
 import DepartmentDetail from "./pages/DepartmentDetail"; // Assuming this is a new page for department details
 
 import "./App.css";
+import Users from "./pages/Users";
 
 function App() {
   return (
@@ -22,10 +23,10 @@ function App() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="feeds" element={<Feeds />} />
           <Route path="leaves" element={<Leaves />} />
           <Route path="jobs" element={<Jobs />} />
-           <Route path="departments/:deptId" element={<DepartmentDetail />} />
+          <Route path="departments/:deptId" element={<DepartmentDetail />} />
+          <Route path="users" element={<Users />} />
           <Route path="departments" element={<Departments />} />
           {/* Optionally, add a 404 */}
           <Route
