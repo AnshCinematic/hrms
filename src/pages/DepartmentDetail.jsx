@@ -44,12 +44,6 @@ export default function DepartmentDetail() {
   const [searchTerm, setSearchTerm] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [openVacancyDialog, setOpenVacancyDialog] = useState(false);
-  const [vacancyForm, setVacancyForm] = useState({
-    role: "",
-    description: "",
-    lastDate: "",
-  });
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -67,84 +61,59 @@ export default function DepartmentDetail() {
     // Simulate API fetch
     setTimeout(() => {
       setEmployees([
-        { 
-          id: 101, 
-          empId: "ENG001", 
-          name: "Alice Johnson", 
-          email: "alice@company.com", 
-          phone: "123-456-7890", 
+        {
+          id: 101,
+          empId: "ENG001",
+          name: "Alice Johnson",
+          email: "alice@company.com",
+          phone: "123-456-7890",
           designation: "Software Engineer",
-          joinDate: "2020-05-15"
+          joinDate: "2020-05-15",
         },
-        { 
-          id: 102, 
-          empId: "ENG002", 
-          name: "Bob Smith", 
-          email: "bob@company.com", 
-          phone: "987-654-3210", 
+        {
+          id: 102,
+          empId: "ENG002",
+          name: "Bob Smith",
+          email: "bob@company.com",
+          phone: "987-654-3210",
           designation: "Senior Engineer",
-          joinDate: "2018-11-22"
+          joinDate: "2018-11-22",
         },
       ]);
       setLoading(false);
     }, 800);
   }, [deptId]);
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.empId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.designation.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.empId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.designation.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleDeleteEmployee = (id) => {
-    setEmployees(employees.filter(emp => emp.id !== id));
-  };
-
-  const handleCreateVacancy = () => {
-    const newVacancy = {
-      id: Date.now(),
-      department: department.name,
-      role: vacancyForm.role,
-      description: vacancyForm.description,
-      lastDate: vacancyForm.lastDate,
-      postedDate: new Date().toISOString().split('T')[0],
-      status: "active"
-    };
-
-    // Get existing vacancies
-    const existingVacancies = JSON.parse(localStorage.getItem('vacancies')) || [];
-    const updatedVacancies = [...existingVacancies, newVacancy];
-    
-    // Save to localStorage
-    localStorage.setItem('vacancies', JSON.stringify(updatedVacancies));
-    
-    // Trigger storage event to update other tabs
-    window.dispatchEvent(new Event('storage'));
-    
-    setSnackbar({
-      open: true,
-      message: "Vacancy created and posted to Jobs page!",
-      severity: "success",
-    });
-    
-    setVacancyForm({ role: "", description: "", lastDate: "" });
-    setOpenVacancyDialog(false);
+    setEmployees(employees.filter((emp) => emp.id !== id));
   };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/* Header Section */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 3,
-        flexWrap: 'wrap',
-        gap: 2
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Tooltip title="Back to departments">
-            <IconButton onClick={() => navigate('/departments')} sx={{ color: 'primary.main' }}>
+            <IconButton
+              onClick={() => navigate("/departments")}
+              sx={{ color: "primary.main" }}
+            >
               <BackIcon />
             </IconButton>
           </Tooltip>
@@ -156,7 +125,7 @@ export default function DepartmentDetail() {
               Employee Directory
             </Typography>
           </Box>
-          <Chip 
+          <Chip
             label={`${employees.length} employees`}
             color="primary"
             variant="outlined"
@@ -164,16 +133,8 @@ export default function DepartmentDetail() {
             sx={{ ml: 1 }}
           />
         </Box>
-        
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant="contained"
-            startIcon={<VacancyIcon />}
-            onClick={() => setOpenVacancyDialog(true)}
-            sx={{ bgcolor: 'secondary.main' }}
-          >
-            Create Vacancy
-          </Button>
+
+        <Box sx={{ display: "flex", gap: 2 }}>
           <TextField
             size="small"
             placeholder="Search employees..."
@@ -184,8 +145,8 @@ export default function DepartmentDetail() {
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{ width: 250 }}
           />
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setOpenDialog(true)}
           >
@@ -197,19 +158,24 @@ export default function DepartmentDetail() {
       <Divider sx={{ mb: 3 }} />
 
       {/* Employee Table */}
-      <Paper elevation={0} sx={{ 
-        border: '1px solid', 
-        borderColor: 'divider', 
-        borderRadius: 2,
-        overflow: 'hidden'
-      }}>
+      <Paper
+        elevation={0}
+        sx={{
+          border: "1px solid",
+          borderColor: "divider",
+          borderRadius: 2,
+          overflow: "hidden",
+        }}
+      >
         {loading ? (
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            height: 200 
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: 200,
+            }}
+          >
             <CircularProgress />
           </Box>
         ) : (
@@ -228,8 +194,14 @@ export default function DepartmentDetail() {
               {filteredEmployees.map((emp) => (
                 <TableRow key={emp.id} hover>
                   <TableCell>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar sx={{ bgcolor: department.color, width: 36, height: 36 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar
+                        sx={{
+                          bgcolor: department.color,
+                          width: 36,
+                          height: 36,
+                        }}
+                      >
                         <PersonIcon fontSize="small" />
                       </Avatar>
                       <Box>
@@ -243,29 +215,31 @@ export default function DepartmentDetail() {
                   <TableCell>{emp.empId}</TableCell>
                   <TableCell>{emp.designation}</TableCell>
                   <TableCell>{emp.phone}</TableCell>
-                  <TableCell>{new Date(emp.joinDate).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(emp.joinDate).toLocaleDateString()}
+                  </TableCell>
                   <TableCell align="right">
                     <Tooltip title="Edit">
-                      <IconButton 
+                      <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedEmployee(emp);
                           setOpenDialog(true);
                         }}
                         size="small"
-                        sx={{ color: 'text.secondary' }}
+                        sx={{ color: "text.secondary" }}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Delete">
-                      <IconButton 
+                      <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteEmployee(emp.id);
                         }}
                         size="small"
-                        sx={{ color: 'error.main' }}
+                        sx={{ color: "error.main" }}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
@@ -294,16 +268,23 @@ export default function DepartmentDetail() {
       </Paper>
 
       {/* Add/Edit Employee Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ 
-          bgcolor: 'primary.main', 
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1
-        }}>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle
+          sx={{
+            bgcolor: "primary.main",
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
           <PersonIcon />
-          {selectedEmployee ? 'Edit Employee' : 'Add New Employee'}
+          {selectedEmployee ? "Edit Employee" : "Add New Employee"}
         </DialogTitle>
         <DialogContent sx={{ py: 3 }}>
           <TextField
@@ -312,7 +293,7 @@ export default function DepartmentDetail() {
             label="Full Name"
             fullWidth
             variant="outlined"
-            defaultValue={selectedEmployee?.name || ''}
+            defaultValue={selectedEmployee?.name || ""}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -320,7 +301,7 @@ export default function DepartmentDetail() {
             label="Employee ID"
             fullWidth
             variant="outlined"
-            defaultValue={selectedEmployee?.empId || ''}
+            defaultValue={selectedEmployee?.empId || ""}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -328,7 +309,7 @@ export default function DepartmentDetail() {
             label="Designation"
             fullWidth
             variant="outlined"
-            defaultValue={selectedEmployee?.designation || ''}
+            defaultValue={selectedEmployee?.designation || ""}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -336,7 +317,7 @@ export default function DepartmentDetail() {
             label="Email"
             fullWidth
             variant="outlined"
-            defaultValue={selectedEmployee?.email || ''}
+            defaultValue={selectedEmployee?.email || ""}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -344,114 +325,29 @@ export default function DepartmentDetail() {
             label="Phone"
             fullWidth
             variant="outlined"
-            defaultValue={selectedEmployee?.phone || ''}
+            defaultValue={selectedEmployee?.phone || ""}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button 
+          <Button
             onClick={() => {
               setOpenDialog(false);
               setSelectedEmployee(null);
-            }} 
+            }}
             variant="outlined"
           >
             Cancel
           </Button>
-          <Button 
-            variant="contained" 
-            sx={{ 
-              bgcolor: 'primary.main',
-              '&:hover': {
-                bgcolor: 'primary.dark',
-              }
+          <Button
+            variant="contained"
+            sx={{
+              bgcolor: "primary.main",
+              "&:hover": {
+                bgcolor: "primary.dark",
+              },
             }}
           >
-            {selectedEmployee ? 'Update' : 'Add'}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Vacancy Creation Dialog */}
-      <Dialog open={openVacancyDialog} onClose={() => setOpenVacancyDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ 
-          bgcolor: 'secondary.main', 
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1
-        }}>
-          <VacancyIcon />
-          Create New Vacancy
-        </DialogTitle>
-        <DialogContent sx={{ py: 3 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Role/Position"
-            fullWidth
-            variant="outlined"
-            value={vacancyForm.role}
-            onChange={(e) => setVacancyForm({...vacancyForm, role: e.target.value})}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Job Description"
-            fullWidth
-            variant="outlined"
-            multiline
-            rows={4}
-            value={vacancyForm.description}
-            onChange={(e) => setVacancyForm({...vacancyForm, description: e.target.value})}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Last Date to Apply"
-            fullWidth
-            variant="outlined"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={vacancyForm.lastDate}
-            onChange={(e) => setVacancyForm({...vacancyForm, lastDate: e.target.value})}
-          />
-          <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Preview of Hiring Message:
-            </Typography>
-            <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-              {vacancyForm.role || vacancyForm.description || vacancyForm.lastDate ? (
-                `New vacancy in ${department.name} department:\n\n` +
-                `Role: ${vacancyForm.role || '-'}\n` +
-                `Description: ${vacancyForm.description || '-'}\n` +
-                `Last date to apply: ${vacancyForm.lastDate || '-'}\n\n` +
-                `Interested candidates should apply immediately!`
-              ) : (
-                "Fill the form to see the generated message"
-              )}
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button 
-            onClick={() => setOpenVacancyDialog(false)} 
-            variant="outlined"
-          >
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
-            startIcon={<SendIcon />}
-            onClick={handleCreateVacancy}
-            disabled={!vacancyForm.role}
-            sx={{ 
-              bgcolor: 'secondary.main',
-              '&:hover': {
-                bgcolor: 'secondary.dark',
-              }
-            }}
-          >
-            Post to Jobs
+            {selectedEmployee ? "Update" : "Add"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -459,13 +355,10 @@ export default function DepartmentDetail() {
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}
-        onClose={() => setSnackbar({...snackbar, open: false})}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert 
-          severity={snackbar.severity} 
-          sx={{ width: '100%' }}
-        >
+        <Alert severity={snackbar.severity} sx={{ width: "100%" }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

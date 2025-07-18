@@ -11,6 +11,7 @@ import Leaves from "./pages/Leaves";
 import Jobs from "./pages/Jobs";
 import Departments from "./pages/Departments";
 import DepartmentDetail from "./pages/DepartmentDetail"; // Assuming this is a new page for department details
+import JobDetails from "./pages/JobDetails";
 
 import "./App.css";
 import Users from "./pages/Users";
@@ -25,6 +26,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="leaves" element={<Leaves />} />
           <Route path="jobs" element={<Jobs />} />
+          <Route path="jobs/:jobId" element={<JobDetails />} />
           <Route path="departments/:deptId" element={<DepartmentDetail />} />
           <Route path="users" element={<Users />} />
           <Route path="departments" element={<Departments />} />
