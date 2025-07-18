@@ -32,6 +32,7 @@ const navItems = [
   { text: "Jobs", icon: <WorkIcon />, path: "/jobs" },
   { text: "Users", icon: <VerifiedUserOutlined />, path: "/users" },
   { text: "Departments", icon: <LayersIcon />, path: "/departments" },
+  { text: "Payroll", icon: <WorkIcon />, path: "/payroll" },
 ];
 
 const APP_NAME = "HRMS Portal";

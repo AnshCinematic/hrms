@@ -74,6 +74,19 @@ function CreateUserDialog({
 
   const handleSnackbarClose = () => setSnackbarOpen(false);
 
+  // Helper to get value from either camelCase, snake_case, or nested account
+  const getVal = (key, fallback = "") => {
+    return (
+      formData[key] ||
+      formData[key.replace(/([A-Z])/g, "_$1").toLowerCase()] ||
+      (formData.account
+        ? formData.account[key] ||
+          formData.account[key.replace(/([A-Z])/g, "_$1").toLowerCase()]
+        : undefined) ||
+      fallback
+    );
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
@@ -94,7 +107,7 @@ function CreateUserDialog({
                       name="fullName"
                       label="Full Name"
                       fullWidth
-                      value={formData.fullName || formData.username || ""}
+                      value={getVal("fullName") || getVal("name")}
                       onChange={handleChange}
                       error={!!errors.fullName}
                       helperText={errors.fullName || ""}
@@ -106,7 +119,7 @@ function CreateUserDialog({
                       name="email"
                       label="Email Address"
                       fullWidth
-                      value={formData.email || ""}
+                      value={getVal("email")}
                       onChange={handleChange}
                       error={!!errors.email}
                       helperText={errors.email || ""}
@@ -116,7 +129,12 @@ function CreateUserDialog({
                   <Grid item xs={12} md={6}>
                     <DatePicker
                       label="Date of Birth"
-                      value={formData.dob || formData.dateOfBirth || null}
+                      value={
+                        getVal("dob") ||
+                        getVal("dateOfBirth") ||
+                        getVal("date_of_birth") ||
+                        null
+                      }
                       onChange={(date) => handleDateChange("dob", date)}
                       renderInput={(params) => (
                         <TextField
@@ -136,7 +154,7 @@ function CreateUserDialog({
                       name="gender"
                       label="Gender"
                       fullWidth
-                      value={formData.gender || ""}
+                      value={getVal("gender")}
                       onChange={handleChange}
                       disabled={readOnly}
                     >
@@ -152,7 +170,7 @@ function CreateUserDialog({
                       fullWidth
                       multiline
                       rows={2}
-                      value={formData.address || ""}
+                      value={getVal("address")}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -174,7 +192,7 @@ function CreateUserDialog({
                       name="department"
                       label="Department"
                       fullWidth
-                      value={formData.department || ""}
+                      value={getVal("department")}
                       onChange={handleChange}
                       error={!!errors.department}
                       helperText={errors.department || ""}
@@ -193,7 +211,7 @@ function CreateUserDialog({
                       name="role"
                       label="Designation / Role"
                       fullWidth
-                      value={formData.role || formData.designation || ""}
+                      value={getVal("role") || getVal("designation")}
                       onChange={handleChange}
                       error={!!errors.role}
                       helperText={errors.role || ""}
@@ -209,7 +227,12 @@ function CreateUserDialog({
                   <Grid item xs={12} md={6}>
                     <DatePicker
                       label="Date of Joining"
-                      value={formData.doj || formData.dateOfJoining || null}
+                      value={
+                        getVal("doj") ||
+                        getVal("dateOfJoining") ||
+                        getVal("date_of_joining") ||
+                        null
+                      }
                       onChange={(date) => handleDateChange("doj", date)}
                       renderInput={(params) => (
                         <TextField
@@ -228,7 +251,9 @@ function CreateUserDialog({
                       name="employmentType"
                       label="Employment Type"
                       fullWidth
-                      value={formData.employmentType || ""}
+                      value={
+                        getVal("employmentType") || getVal("employment_type")
+                      }
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -238,7 +263,7 @@ function CreateUserDialog({
                       name="workLocation"
                       label="Work Location"
                       fullWidth
-                      value={formData.workLocation || ""}
+                      value={getVal("workLocation") || getVal("work_location")}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -249,7 +274,11 @@ function CreateUserDialog({
                       label="Base Salary (CTC)"
                       type="number"
                       fullWidth
-                      value={formData.ctc || formData.baseSalary || ""}
+                      value={
+                        getVal("ctc") ||
+                        getVal("baseSalary") ||
+                        getVal("base_salary")
+                      }
                       onChange={handleChange}
                       error={!!errors.ctc}
                       helperText={errors.ctc || ""}
@@ -272,7 +301,10 @@ function CreateUserDialog({
                       name="accountHolderName"
                       label="Account Holder Name"
                       fullWidth
-                      value={formData.accountHolderName || ""}
+                      value={
+                        getVal("accountHolderName") ||
+                        getVal("account_holder_name")
+                      }
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -282,7 +314,10 @@ function CreateUserDialog({
                       name="bankAccountNumber"
                       label="Bank Account Number"
                       fullWidth
-                      value={formData.bankAccountNumber || ""}
+                      value={
+                        getVal("bankAccountNumber") ||
+                        getVal("bank_account_number")
+                      }
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -292,7 +327,7 @@ function CreateUserDialog({
                       name="ifscCode"
                       label="IFSC Code"
                       fullWidth
-                      value={formData.ifscCode || ""}
+                      value={getVal("ifscCode") || getVal("ifsc_code")}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -302,7 +337,7 @@ function CreateUserDialog({
                       name="panNumber"
                       label="PAN Number"
                       fullWidth
-                      value={formData.panNumber || ""}
+                      value={getVal("panNumber") || getVal("pan_number")}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -312,7 +347,9 @@ function CreateUserDialog({
                       name="pfAccountNo"
                       label="PF Account No (optional)"
                       fullWidth
-                      value={formData.pfAccountNo || ""}
+                      value={
+                        getVal("pfAccountNo") || getVal("pf_account_number")
+                      }
                       onChange={handleChange}
                       disabled={readOnly}
                     />
@@ -322,7 +359,7 @@ function CreateUserDialog({
                       name="nationality"
                       label="Nationality"
                       fullWidth
-                      value={formData.nationality || ""}
+                      value={getVal("nationality")}
                       onChange={handleChange}
                       disabled={readOnly}
                     />
