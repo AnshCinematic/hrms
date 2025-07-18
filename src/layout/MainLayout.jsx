@@ -16,7 +16,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import LayersIcon from "@mui/icons-material/Layers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-const drawerWidth = 220;
+const drawerWidth = 50;
 
 const navItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
@@ -44,10 +44,10 @@ export default function MainLayout() {
       <Drawer
         variant="permanent"
         sx={{
-          width: drawerWidth,
+          // width: drawerWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
-            width: drawerWidth,
+            // width: drawerWidth,
             boxSizing: "border-box",
             pt: 8,
           },
@@ -64,7 +64,7 @@ export default function MainLayout() {
               selected={location.pathname === item.path}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+              {/* <ListItemText primary={item.text} /> */}
             </ListItem>
           ))}
         </List>
@@ -77,7 +77,7 @@ export default function MainLayout() {
           flexGrow: 1,
           bgcolor: "background.default",
           p: 3,
-          ml: `${drawerWidth}px`,
+          // ml: `${drawerWidth}px`,
           mt: 8,
         }}
       >
