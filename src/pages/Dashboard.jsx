@@ -191,24 +191,44 @@ export default function Dashboard() {
   return (
     <Container
       maxWidth="xl"
-      sx={{ p: 0, height: "100vh", display: "flex", flexDirection: "column" }}
+      sx={{
+        p: 0,
+        minHeight: "100vh",
+        bgcolor: "#f7f8fa",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      {/* Header with Toggle */}
-      <Box
+      <Paper
+        elevation={3}
         sx={{
           p: 3,
+          borderRadius: 0,
           borderBottom: "1px solid",
           borderColor: "divider",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          bgcolor: "white",
+          mb: 0,
         }}
       >
-        <Typography variant="h4" component="h1" fontWeight="bold">
-          Company Dashboard
-        </Typography>
-
         <Box>
+          <Typography
+            variant="h3"
+            component="h1"
+            fontWeight={800}
+            color="primary.main"
+            sx={{ letterSpacing: 1, mb: 0.5 }}
+          >
+            Company Dashboard
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            Welcome to your company portal. Stay updated with announcements and
+            job openings.
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           <FormControlLabel
             control={
               <Checkbox
@@ -216,7 +236,14 @@ export default function Dashboard() {
                 onChange={(e) => setShowAnnouncements(e.target.checked)}
               />
             }
-            label="Show Announcements"
+            label={<Typography fontWeight={600}>Announcements</Typography>}
+            sx={{
+              mx: 1,
+              bgcolor: showAnnouncements ? "primary.lighter" : "transparent",
+              borderRadius: 2,
+              px: 1,
+              py: 0.5,
+            }}
           />
           <FormControlLabel
             control={
@@ -225,37 +252,77 @@ export default function Dashboard() {
                 onChange={(e) => setShowJobs(e.target.checked)}
               />
             }
-            label="Show Job Openings"
+            label={<Typography fontWeight={600}>Job Openings</Typography>}
+            sx={{
+              mx: 1,
+              bgcolor: showJobs ? "primary.lighter" : "transparent",
+              borderRadius: 2,
+              px: 1,
+              py: 0.5,
+            }}
           />
         </Box>
-      </Box>
-
-      {/* Main Content Area */}
-      <Box sx={{ flex: 1, overflow: "auto", p: 3 }}>
-        {timelineItems.length === 0 ? (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "60vh",
-            }}
-          >
-            <AnnouncementIcon
-              sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
-            />
-            <Typography variant="h5">No items to display</Typography>
-          </Box>
-        ) : (
-          <List sx={{ width: "100%" }}>
-            {timelineItems.map((item) => (
-              <React.Fragment key={item.id + item.type}>
-                <Card sx={{ mb: 2 }}>
-                  <CardContent>
-                    <ListItem alignItems="flex-start">
+      </Paper>
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "auto",
+          p: { xs: 1, sm: 3 },
+          maxWidth: 800,
+          mx: "auto",
+          width: "100%",
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            bgcolor: "white",
+            borderRadius: 3,
+            p: { xs: 1, sm: 3 },
+            boxShadow: 2,
+            mt: 4,
+          }}
+        >
+          {timelineItems.length === 0 ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "40vh",
+              }}
+            >
+              <AnnouncementIcon
+                sx={{ fontSize: 48, color: "text.disabled", mb: 2 }}
+              />
+              <Typography variant="h5">No items to display</Typography>
+            </Box>
+          ) : (
+            <List sx={{ width: "100%" }}>
+              {timelineItems.map((item) => (
+                <React.Fragment key={item.id + item.type}>
+                  <Paper
+                    elevation={2}
+                    sx={{
+                      mb: 3,
+                      borderRadius: 2,
+                      p: 2,
+                      bgcolor:
+                        item.type === "announcement" ? "#e3f2fd" : "#f3e5f5",
+                      boxShadow: 1,
+                    }}
+                  >
+                    <ListItem alignItems="flex-start" sx={{ p: 0 }}>
                       <ListItemAvatar>
-                        <Avatar>
+                        <Avatar
+                          sx={{
+                            bgcolor:
+                              item.type === "announcement"
+                                ? "primary.main"
+                                : "secondary.main",
+                          }}
+                        >
                           {item.type === "announcement" ? (
                             <AnnouncementIcon />
                           ) : (
@@ -264,12 +331,24 @@ export default function Dashboard() {
                         </Avatar>
                       </ListItemAvatar>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle1" fontWeight={600}>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color={
+                            item.type === "announcement"
+                              ? "primary.main"
+                              : "secondary.main"
+                          }
+                        >
                           {item.type === "announcement"
                             ? item.author
                             : item.role}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mb: 0.5 }}
+                        >
                           {item.type === "announcement"
                             ? item.text
                             : `${item.department} Department`}
@@ -279,15 +358,13 @@ export default function Dashboard() {
                         </Typography>
                       </Box>
                     </ListItem>
-                  </CardContent>
-                </Card>
-                <Divider />
-              </React.Fragment>
-            ))}
-          </List>
-        )}
+                  </Paper>
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </Paper>
       </Box>
-
       {/* Announcement Creator (Fixed at Bottom) */}
       {showAnnouncements && (
         <Paper
@@ -299,9 +376,15 @@ export default function Dashboard() {
             position: "sticky",
             bottom: 0,
             zIndex: 1,
+            bgcolor: "white",
           }}
         >
-          <Typography variant="h6" gutterBottom>
+          <Typography
+            variant="h6"
+            gutterBottom
+            fontWeight={700}
+            color="primary.main"
+          >
             Create Announcement
           </Typography>
           <Box sx={{ display: "flex", gap: 2 }}>
@@ -320,14 +403,13 @@ export default function Dashboard() {
               color="primary"
               onClick={handlePostAnnouncement}
               disabled={!newAnnouncement.trim()}
-              sx={{ height: "100%", minWidth: 120 }}
+              sx={{ height: "100%", minWidth: 120, fontWeight: 700 }}
             >
               Post
             </Button>
           </Box>
         </Paper>
       )}
-
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbar.open}
