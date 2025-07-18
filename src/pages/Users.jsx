@@ -14,6 +14,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Box,
+  Card,
+  CardContent,
 } from "@mui/material";
 import CreateUserDialog from "../components/users/CreateUserDialog.jsx";
 
@@ -167,77 +170,92 @@ function Users() {
   const cancelDelete = () => setDeleteIndex(null);
 
   return (
-    <div className="p-4">
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: { xs: 1, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        color="primary.main"
+        gutterBottom
+        sx={{ mb: 3 }}
+      >
         Users
       </Typography>
       <Button
         variant="contained"
         color="primary"
         onClick={handleOpen}
-        className="mb-4"
+        sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
       >
         + Create User
       </Button>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Department</TableCell>
-              <TableCell>DOB</TableCell>
-              <TableCell>DOJ</TableCell>
-              <TableCell>CTC</TableCell>
-              <TableCell>Gender</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.map((user, idx) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.id}</TableCell>
-                <TableCell>{user.fullName}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
-                <TableCell>{user.department}</TableCell>
-                <TableCell>
-                  {user.dob
-                    ? typeof user.dob === "string"
-                      ? user.dob
-                      : user.dob.toLocaleDateString()
-                    : ""}
-                </TableCell>
-                <TableCell>
-                  {user.doj
-                    ? typeof user.doj === "string"
-                      ? user.doj
-                      : user.doj.toLocaleDateString()
-                    : ""}
-                </TableCell>
-                <TableCell>{user.ctc}</TableCell>
-                <TableCell>{user.gender}</TableCell>
-                <TableCell>
-                  <Button size="small" onClick={() => handleEdit(idx)}>
-                    Edit
-                  </Button>
-                  <Button
-                    size="small"
-                    color="error"
-                    onClick={() => handleDelete(idx)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
+      <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
+        <CardContent>
+          <TableContainer component={Box}>
+            <Table>
+              <TableHead sx={{ bgcolor: "#f4f6f8" }}>
+                <TableRow>
+                  <TableCell>ID</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell>Department</TableCell>
+                  <TableCell>DOB</TableCell>
+                  <TableCell>DOJ</TableCell>
+                  <TableCell>CTC</TableCell>
+                  <TableCell>Gender</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.map((user, idx) => (
+                  <TableRow key={user.id} hover>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell>{user.fullName}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.department}</TableCell>
+                    <TableCell>
+                      {user.dob
+                        ? typeof user.dob === "string"
+                          ? user.dob
+                          : user.dob.toLocaleDateString()
+                        : ""}
+                    </TableCell>
+                    <TableCell>
+                      {user.doj
+                        ? typeof user.doj === "string"
+                          ? user.doj
+                          : user.doj.toLocaleDateString()
+                        : ""}
+                    </TableCell>
+                    <TableCell>{user.ctc}</TableCell>
+                    <TableCell>{user.gender}</TableCell>
+                    <TableCell>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        sx={{ mr: 1, borderRadius: 2 }}
+                        onClick={() => handleEdit(idx)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="error"
+                        sx={{ borderRadius: 2 }}
+                        onClick={() => handleDelete(idx)}
+                      >
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
       <CreateUserDialog
         open={open}
         onClose={handleClose}
@@ -246,7 +264,6 @@ function Users() {
         setFormData={setFormData}
         editMode={editIndex !== null}
       />
-
       {/* Delete Confirmation Dialog */}
       {deleteIndex !== null && (
         <Dialog open={true} onClose={cancelDelete}>
@@ -263,7 +280,7 @@ function Users() {
           </DialogActions>
         </Dialog>
       )}
-    </div>
+    </Box>
   );
 }
 

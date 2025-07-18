@@ -11,12 +11,16 @@ import {
   Typography,
   Box,
   CssBaseline,
+  Avatar,
+  Divider,
+  useTheme,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import WorkIcon from "@mui/icons-material/Work";
 import LayersIcon from "@mui/icons-material/Layers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { VerifiedUserOutlined } from "@mui/icons-material";
+import React from "react";
 
 const drawerWidth = 240;
 
@@ -28,22 +32,74 @@ const navItems = [
   { text: "Departments", icon: <LayersIcon />, path: "/departments" },
 ];
 
+const APP_NAME = "HRMS Portal";
+const LOGO = (
+  <Avatar
+    sx={{
+      bgcolor: "primary.main",
+      width: 40,
+      height: 40,
+      fontWeight: 700,
+      fontSize: 24,
+    }}
+  >
+    HR
+  </Avatar>
+);
+
+const USER = { name: "Alice Smith", role: "Admin" };
+
 export default function MainLayout() {
   const location = useLocation();
+  const theme = useTheme();
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f7f8fa" }}>
       <CssBaseline />
 
       {/* Top App Bar */}
       <AppBar
         position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        elevation={1}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: "white",
+          color: "primary.main",
+          borderBottom: "1px solid #e0e0e0",
+        }}
       >
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            HRMS Portal
-          </Typography>
+        <Toolbar
+          sx={{
+            minHeight: 64,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {LOGO}
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              fontWeight={700}
+              color="primary.main"
+            >
+              {APP_NAME}
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.light" }}>
+              {USER.name[0]}
+            </Avatar>
+            <Box>
+              <Typography variant="body1" fontWeight={600} color="text.primary">
+                {USER.name}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {USER.role}
+              </Typography>
+            </Box>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -56,25 +112,81 @@ export default function MainLayout() {
           [`& .MuiDrawer-paper`]: {
             width: drawerWidth,
             boxSizing: "border-box",
-            pt: 8, // pushes below AppBar
+            pt: 0,
+            bgcolor: "#212b36",
+            color: "#fff",
+            borderRight: "none",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           },
         }}
       >
-        <Toolbar />
-        <List>
-          {navItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                component={Link}
-                to={item.path}
-                selected={location.pathname === item.path}
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+        <Box>
+          <Toolbar sx={{ minHeight: 64 }} />
+          <Box sx={{ px: 2, py: 3 }}>
+            <Typography
+              variant="subtitle2"
+              color="#b0b8c1"
+              sx={{ mb: 2, letterSpacing: 1 }}
+            >
+              NAVIGATION
+            </Typography>
+            <List>
+              {navItems.map((item) => (
+                <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
+                  <ListItemButton
+                    component={Link}
+                    to={item.path}
+                    selected={location.pathname === item.path}
+                    sx={{
+                      borderRadius: 2,
+                      bgcolor:
+                        location.pathname === item.path
+                          ? "primary.main"
+                          : "inherit",
+                      color:
+                        location.pathname === item.path ? "#fff" : "#b0b8c1",
+                      "&:hover": {
+                        bgcolor:
+                          location.pathname === item.path
+                            ? "primary.dark"
+                            : "#2d3843",
+                        color: "#fff",
+                      },
+                      px: 2,
+                      py: 1.2,
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: "inherit", minWidth: 36 }}>
+                      {item.icon}
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{ fontWeight: 600 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Box>
+        <Box sx={{ px: 2, py: 3, borderTop: "1px solid #2d3843" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.light" }}>
+              {USER.name[0]}
+            </Avatar>
+            <Box>
+              <Typography variant="body2" fontWeight={600} color="#fff">
+                {USER.name}
+              </Typography>
+              <Typography variant="caption" color="#b0b8c1">
+                {USER.role}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
       </Drawer>
 
       {/* Main Content Area */}
@@ -82,9 +194,11 @@ export default function MainLayout() {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          ml: `${drawerWidth}px`,    // avoids Drawer overlap
-          mt: 8,                    // avoids AppBar overlap
+          p: { xs: 1, sm: 3 },
+          ml: `${drawerWidth}px`,
+          mt: 8,
+          minHeight: "100vh",
+          bgcolor: "#f7f8fa",
         }}
       >
         <Outlet />

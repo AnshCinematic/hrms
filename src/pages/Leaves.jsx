@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Typography,
-  Card,
-  CardContent,
   Button,
   Table,
   TableHead,
@@ -21,6 +19,9 @@ import {
   FormControl,
   InputLabel,
   Grid,
+  Box,
+  Card,
+  CardContent,
 } from "@mui/material";
 
 const LEAVE_TYPES = [
@@ -214,96 +215,168 @@ function Leaves() {
     : [];
 
   return (
-    <div className="p-4">
-      {/* Filters/Search */}
-      <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
-        <Grid item>
-          <FormControl size="small">
-            <InputLabel>User</InputLabel>
-            <Select
-              value={currentUserId}
-              label="User"
-              onChange={(e) => setCurrentUserId(Number(e.target.value))}
-              sx={{ minWidth: 180 }}
-            >
-              {USER_OPTIONS.map((u) => (
-                <MenuItem key={u.id} value={u.id}>
-                  {u.name} ({u.role})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item>
-          <TextField
-            size="small"
-            label="Search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            sx={{ minWidth: 180 }}
-          />
-        </Grid>
-        <Grid item>
-          <FormControl size="small">
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Status"
-              onChange={(e) => setStatusFilter(e.target.value)}
-              sx={{ minWidth: 120 }}
-            >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="Pending">Pending</MenuItem>
-              <MenuItem value="Approved">Approved</MenuItem>
-              <MenuItem value="Rejected">Rejected</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item>
-          <FormControl size="small">
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={typeFilter}
-              label="Type"
-              onChange={(e) => setTypeFilter(e.target.value)}
-              sx={{ minWidth: 150 }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {LEAVE_TYPES.map((type) => (
-                <MenuItem key={type} value={type}>
-                  {type}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-      </Grid>
-
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: { xs: 1, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        color="primary.main"
+        gutterBottom
+        sx={{ mb: 3 }}
+      >
         Leave Management
       </Typography>
-
-      <Card className="mb-4">
+      <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Apply for Leave
-          </Typography>
-          <Button variant="contained" color="primary" onClick={handleApplyOpen}>
+          <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+            <Grid item>
+              <FormControl size="small">
+                <InputLabel>User</InputLabel>
+                <Select
+                  value={currentUserId}
+                  label="User"
+                  onChange={(e) => setCurrentUserId(Number(e.target.value))}
+                  sx={{ minWidth: 180 }}
+                >
+                  {USER_OPTIONS.map((u) => (
+                    <MenuItem key={u.id} value={u.id}>
+                      {u.name} ({u.role})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <TextField
+                size="small"
+                label="Search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                sx={{ minWidth: 180 }}
+              />
+            </Grid>
+            <Grid item>
+              <FormControl size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={statusFilter}
+                  label="Status"
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  sx={{ minWidth: 120 }}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Approved">Approved</MenuItem>
+                  <MenuItem value="Rejected">Rejected</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl size="small">
+                <InputLabel>Type</InputLabel>
+                <Select
+                  value={typeFilter}
+                  label="Type"
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  sx={{ minWidth: 150 }}
+                >
+                  <MenuItem value="">All</MenuItem>
+                  {LEAVE_TYPES.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleApplyOpen}
+            sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
+          >
             Apply Leave
           </Button>
         </CardContent>
       </Card>
-
-      {/* Manager: Pending Approvals */}
       {isManager && (
-        <>
-          <Typography variant="h6" gutterBottom>
-            Pending Leave Approvals
+        <Card elevation={1} sx={{ borderRadius: 3, mb: 4 }}>
+          <CardContent>
+            <Typography
+              variant="h6"
+              fontWeight={600}
+              color="primary.main"
+              gutterBottom
+            >
+              Pending Leave Approvals
+            </Typography>
+            <Table sx={{ mb: 4 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>User</TableCell>
+                  <TableCell>Start Date</TableCell>
+                  <TableCell>End Date</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Reason</TableCell>
+                  <TableCell>Half Day</TableCell>
+                  <TableCell>Attachment</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {pendingLeaves.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9}>No pending leaves</TableCell>
+                  </TableRow>
+                ) : (
+                  pendingLeaves.map((l) => (
+                    <TableRow key={l.id}>
+                      <TableCell>{l.userName}</TableCell>
+                      <TableCell>{l.date}</TableCell>
+                      <TableCell>{l.endDate || "-"}</TableCell>
+                      <TableCell>{l.type}</TableCell>
+                      <TableCell>{l.reason}</TableCell>
+                      <TableCell>{l.halfDay ? "Yes" : "No"}</TableCell>
+                      <TableCell>{l.attachment ? l.attachment : "-"}</TableCell>
+                      <TableCell>{l.status}</TableCell>
+                      <TableCell>
+                        <Button
+                          size="small"
+                          color="success"
+                          onClick={() => handleApprove(l.id)}
+                        >
+                          Approve
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => handleReject(l.id)}
+                        >
+                          Reject
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+      <Card elevation={1} sx={{ borderRadius: 3, mb: 4 }}>
+        <CardContent>
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            color="primary.main"
+            gutterBottom
+          >
+            My Leave History
           </Typography>
-          <Table sx={{ mb: 4 }}>
+          <Table>
             <TableHead>
               <TableRow>
-                <TableCell>User</TableCell>
                 <TableCell>Start Date</TableCell>
                 <TableCell>End Date</TableCell>
                 <TableCell>Type</TableCell>
@@ -311,18 +384,16 @@ function Leaves() {
                 <TableCell>Half Day</TableCell>
                 <TableCell>Attachment</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {pendingLeaves.length === 0 ? (
+              {myLeaves.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9}>No pending leaves</TableCell>
+                  <TableCell colSpan={7}>No leaves applied</TableCell>
                 </TableRow>
               ) : (
-                pendingLeaves.map((l) => (
+                myLeaves.map((l) => (
                   <TableRow key={l.id}>
-                    <TableCell>{l.userName}</TableCell>
                     <TableCell>{l.date}</TableCell>
                     <TableCell>{l.endDate || "-"}</TableCell>
                     <TableCell>{l.type}</TableCell>
@@ -330,66 +401,13 @@ function Leaves() {
                     <TableCell>{l.halfDay ? "Yes" : "No"}</TableCell>
                     <TableCell>{l.attachment ? l.attachment : "-"}</TableCell>
                     <TableCell>{l.status}</TableCell>
-                    <TableCell>
-                      <Button
-                        size="small"
-                        color="success"
-                        onClick={() => handleApprove(l.id)}
-                      >
-                        Approve
-                      </Button>
-                      <Button
-                        size="small"
-                        color="error"
-                        onClick={() => handleReject(l.id)}
-                      >
-                        Reject
-                      </Button>
-                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
-        </>
-      )}
-
-      <Typography variant="h6" gutterBottom>
-        My Leave History
-      </Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Start Date</TableCell>
-            <TableCell>End Date</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell>Reason</TableCell>
-            <TableCell>Half Day</TableCell>
-            <TableCell>Attachment</TableCell>
-            <TableCell>Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {myLeaves.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7}>No leaves applied</TableCell>
-            </TableRow>
-          ) : (
-            myLeaves.map((l) => (
-              <TableRow key={l.id}>
-                <TableCell>{l.date}</TableCell>
-                <TableCell>{l.endDate || "-"}</TableCell>
-                <TableCell>{l.type}</TableCell>
-                <TableCell>{l.reason}</TableCell>
-                <TableCell>{l.halfDay ? "Yes" : "No"}</TableCell>
-                <TableCell>{l.attachment ? l.attachment : "-"}</TableCell>
-                <TableCell>{l.status}</TableCell>
-              </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-
+        </CardContent>
+      </Card>
       {/* Leave Application Dialog */}
       <Dialog open={applyOpen} onClose={handleApplyClose}>
         <DialogTitle>Apply for Leave</DialogTitle>
@@ -494,7 +512,7 @@ function Leaves() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </div>
+    </Box>
   );
 }
 
