@@ -43,25 +43,29 @@ const channelId = import.meta.env.REACT_APP_SLACK_CHANNEL_ID;
 
 const postToSlack = async (messageData) => {
   try {
-    const response = await fetch('https://slack.com/api/chat.postMessage', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`, // Use env variable
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        channel: channelId, // Use env variable
-        text:messageData
-      })
-    }); 
-    
+    // WARNING: This uses a public CORS proxy. Do NOT use in production!
+    const response = await fetch(
+      "https://corsproxy.io/?https://slack.com/api/chat.postMessage",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, // Use env variable
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          channel: channelId, // Use env variable
+          text: messageData,
+        }),
+      }
+    );
+
     const data = await response.json();
     if (!data.ok) {
-      console.error('Slack API Error:', data.error);
+      console.error("Slack API Error:", data.error);
     }
     return data;
   } catch (error) {
-    console.error('Failed to post to Slack:', error);
+    console.error("Failed to post to Slack:", error);
     return { ok: false, error: error.message };
   }
 };
@@ -95,7 +99,8 @@ export default function Jobs() {
   const fetchVacancies = () => {
     setLoading(true);
     setTimeout(() => {
-      const savedVacancies = JSON.parse(localStorage.getItem("vacancies")) || [];
+      const savedVacancies =
+        JSON.parse(localStorage.getItem("vacancies")) || [];
       setVacancies(savedVacancies);
       setLoading(false);
     }, 500);
@@ -138,7 +143,7 @@ export default function Jobs() {
     const departmentEmojis = {
       Engineering: "⚙️",
       HR: "👥",
-      Sales: "💼"
+      Sales: "💼",
     };
     const departmentEmoji = departmentEmojis[newVacancy.department] || "📌";
 
@@ -150,44 +155,48 @@ export default function Jobs() {
           text: {
             type: "plain_text",
             text: `${departmentEmoji} New Job Opportunity: ${newVacancy.role}`,
-            emoji: true
-          }
+            emoji: true,
+          },
         },
         {
           type: "section",
           fields: [
             {
               type: "mrkdwn",
-              text: `*Department:*\n${newVacancy.department}`
+              text: `*Department:*\n${newVacancy.department}`,
             },
             {
               type: "mrkdwn",
-              text: `*Status:*\nActive`
-            }
-          ]
+              text: `*Status:*\nActive`,
+            },
+          ],
         },
         {
           type: "section",
           fields: [
             {
               type: "mrkdwn",
-              text: `*Posted On:*\n${new Date().toLocaleDateString()}`
+              text: `*Posted On:*\n${new Date().toLocaleDateString()}`,
             },
             {
               type: "mrkdwn",
-              text: `*Closes On:*\n${newVacancy.lastDate || 'Open until filled'}`
-            }
-          ]
+              text: `*Closes On:*\n${
+                newVacancy.lastDate || "Open until filled"
+              }`,
+            },
+          ],
         },
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `*Description:*\n${newVacancy.description || 'No additional details provided'}`
-          }
+            text: `*Description:*\n${
+              newVacancy.description || "No additional details provided"
+            }`,
+          },
         },
         {
-          type: "divider"
+          type: "divider",
         },
         {
           type: "actions",
@@ -197,20 +206,20 @@ export default function Jobs() {
               text: {
                 type: "plain_text",
                 text: "Apply Now",
-                emoji: true
+                emoji: true,
               },
               url: `${window.location.origin}/jobs/${newVacancy.id}`,
-              style: "primary"
-            }
-          ]
-        }
-      ]
+              style: "primary",
+            },
+          ],
+        },
+      ],
     });
 
     setSnackbar({
       open: true,
-      message: slackResponse.ok 
-        ? "Job created and notification sent!" 
+      message: slackResponse.ok
+        ? "Job created and notification sent!"
         : "Job created but Slack notification failed",
       severity: slackResponse.ok ? "success" : "warning",
     });
