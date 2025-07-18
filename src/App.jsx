@@ -6,10 +6,12 @@ import {
 } from "react-router-dom";
 import MainLayout from "./layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
-import Feeds from "./pages/Feeds";
+import Feeds from "./components/feeds/Feeds";
 import Leaves from "./pages/Leaves";
 import Jobs from "./pages/Jobs";
 import Departments from "./pages/Departments";
+import DepartmentDetail from "./pages/DepartmentDetail"; // Assuming this is a new page for department details
+
 import "./App.css";
 
 function App() {
@@ -23,6 +25,7 @@ function App() {
           <Route path="feeds" element={<Feeds />} />
           <Route path="leaves" element={<Leaves />} />
           <Route path="jobs" element={<Jobs />} />
+           <Route path="departments/:deptId" element={<DepartmentDetail />} />
           <Route path="departments" element={<Departments />} />
           {/* Optionally, add a 404 */}
           <Route

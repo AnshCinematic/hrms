@@ -4,11 +4,13 @@ import {
   List,
   ListItem,
   ListItemIcon,
+  ListItemButton,
   ListItemText,
   Toolbar,
   AppBar,
   Typography,
   Box,
+  CssBaseline,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import FeedIcon from "@mui/icons-material/Feed";
@@ -16,7 +18,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import LayersIcon from "@mui/icons-material/Layers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-const drawerWidth = 50;
+const drawerWidth = 240;
 
 const navItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
@@ -31,10 +33,15 @@ export default function MainLayout() {
 
   return (
     <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+
       {/* Top App Bar */}
-      <AppBar position="fixed" sx={{ zIndex: 1201, bgcolor: "#1976d2" }}>
+      <AppBar
+        position="fixed"
+        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+      >
         <Toolbar>
-          <Typography variant="h6" noWrap>
+          <Typography variant="h6" noWrap component="div">
             HRMS Portal
           </Typography>
         </Toolbar>
@@ -44,41 +51,40 @@ export default function MainLayout() {
       <Drawer
         variant="permanent"
         sx={{
-          // width: drawerWidth,
+          width: drawerWidth,
           flexShrink: 0,
           [`& .MuiDrawer-paper`]: {
-            // width: drawerWidth,
+            width: drawerWidth,
             boxSizing: "border-box",
-            pt: 8,
+            pt: 8, // pushes below AppBar
           },
         }}
       >
         <Toolbar />
         <List>
           {navItems.map((item) => (
-            <ListItem
-              key={item.text}
-              button
-              component={Link}
-              to={item.path}
-              selected={location.pathname === item.path}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              {/* <ListItemText primary={item.text} /> */}
+            <ListItem key={item.text} disablePadding>
+              <ListItemButton
+                component={Link}
+                to={item.path}
+                selected={location.pathname === item.path}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
             </ListItem>
           ))}
         </List>
       </Drawer>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          bgcolor: "background.default",
           p: 3,
-          // ml: `${drawerWidth}px`,
-          mt: 8,
+          ml: `${drawerWidth}px`,    // avoids Drawer overlap
+          mt: 8,                    // avoids AppBar overlap
         }}
       >
         <Outlet />
