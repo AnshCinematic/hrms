@@ -37,6 +37,35 @@ import {
 import { blue, green, orange, purple } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
 
+// Slack API utility function
+const token = import.meta.env.REACT_APP_SLACK_BOT_TOKEN;
+const channelId = import.meta.env.REACT_APP_SLACK_CHANNEL_ID;
+
+const postToSlack = async (messageData) => {
+  try {
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Use env variable
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channel: channelId, // Use env variable
+        text:messageData
+      })
+    }); 
+    
+    const data = await response.json();
+    if (!data.ok) {
+      console.error('Slack API Error:', data.error);
+    }
+    return data;
+  } catch (error) {
+    console.error('Failed to post to Slack:', error);
+    return { ok: false, error: error.message };
+  }
+};
+
 export default function Jobs() {
   const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,8 +95,7 @@ export default function Jobs() {
   const fetchVacancies = () => {
     setLoading(true);
     setTimeout(() => {
-      const savedVacancies =
-        JSON.parse(localStorage.getItem("vacancies")) || [];
+      const savedVacancies = JSON.parse(localStorage.getItem("vacancies")) || [];
       setVacancies(savedVacancies);
       setLoading(false);
     }, 500);
@@ -80,7 +108,8 @@ export default function Jobs() {
   };
   const handleFormChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  const handleCreateJob = (e) => {
+
+  const handleCreateJob = async (e) => {
     e.preventDefault();
     if (!form.role || !form.department) {
       setSnackbar({
@@ -90,6 +119,7 @@ export default function Jobs() {
       });
       return;
     }
+
     const newVacancy = {
       id: Date.now(),
       role: form.role,
@@ -99,13 +129,90 @@ export default function Jobs() {
       postedDate: new Date().toISOString().split("T")[0],
       status: "active",
     };
+
     const updatedVacancies = [newVacancy, ...vacancies];
     setVacancies(updatedVacancies);
     localStorage.setItem("vacancies", JSON.stringify(updatedVacancies));
+
+    // Post to Slack
+    const departmentEmojis = {
+      Engineering: "⚙️",
+      HR: "👥",
+      Sales: "💼"
+    };
+    const departmentEmoji = departmentEmojis[newVacancy.department] || "📌";
+
+    const slackResponse = await postToSlack({
+      text: `New job posted: ${newVacancy.role}`,
+      blocks: [
+        {
+          type: "header",
+          text: {
+            type: "plain_text",
+            text: `${departmentEmoji} New Job Opportunity: ${newVacancy.role}`,
+            emoji: true
+          }
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Department:*\n${newVacancy.department}`
+            },
+            {
+              type: "mrkdwn",
+              text: `*Status:*\nActive`
+            }
+          ]
+        },
+        {
+          type: "section",
+          fields: [
+            {
+              type: "mrkdwn",
+              text: `*Posted On:*\n${new Date().toLocaleDateString()}`
+            },
+            {
+              type: "mrkdwn",
+              text: `*Closes On:*\n${newVacancy.lastDate || 'Open until filled'}`
+            }
+          ]
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*Description:*\n${newVacancy.description || 'No additional details provided'}`
+          }
+        },
+        {
+          type: "divider"
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              text: {
+                type: "plain_text",
+                text: "Apply Now",
+                emoji: true
+              },
+              url: `${window.location.origin}/jobs/${newVacancy.id}`,
+              style: "primary"
+            }
+          ]
+        }
+      ]
+    });
+
     setSnackbar({
       open: true,
-      message: "Job created successfully!",
-      severity: "success",
+      message: slackResponse.ok 
+        ? "Job created and notification sent!" 
+        : "Job created but Slack notification failed",
+      severity: slackResponse.ok ? "success" : "warning",
     });
     handleDialogClose();
   };
