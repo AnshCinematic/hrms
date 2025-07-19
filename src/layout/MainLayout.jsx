@@ -217,7 +217,7 @@ export default function MainLayout() {
         sx={{
           flexGrow: 1,
           p: 0,
-          ml: `${drawerWidth}px`,
+          // ml: `${drawerWidth}px`,
           mt: 8,
           minHeight: "100vh",
           bgcolor: "#f7f8fa",
@@ -225,27 +225,28 @@ export default function MainLayout() {
           overflowX: "hidden",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
+          alignItems: "stretch",
         }}
       >
         <Box
           sx={{
             width: "100%",
-            maxWidth: 800,
-            mx: "auto",
             py: { xs: 2, sm: 4 },
-            px: { xs: 1, sm: 3 },
+            px: { xs: 0, sm: 0 },
             minHeight: "80vh",
+            overflowX: "hidden",
           }}
         >
           <Paper
             elevation={0}
             sx={{
               bgcolor: "white",
-              borderRadius: 3,
+              borderRadius: 0,
               boxShadow: 2,
               p: { xs: 1, sm: 3 },
               minHeight: "60vh",
+              width: "100%",
+              overflowX: "hidden",
             }}
           >
             <Outlet />
