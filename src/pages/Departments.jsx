@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserProvider";
+import { hasPermission, getUserDisplayRole } from "../utils/roleUtils";
 import {
   Grid,
   Card,
@@ -17,6 +19,7 @@ import {
   Avatar,
   Chip,
   Divider,
+  Box,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -28,41 +31,55 @@ import { deepPurple, teal, orange } from "@mui/material/colors";
 
 export default function Departments() {
   const navigate = useNavigate();
+  const { user: currentUser } = useUser();
+
+  // Role-based access control using utility functions
+  const hasDepartmentAccess = hasPermission(
+    currentUser,
+    "DEPARTMENT_MANAGEMENT"
+  );
   const [departments, setDepartments] = useState([
-    { 
-      id: 1, 
-      name: "Engineering", 
+    {
+      id: 1,
+      name: "Engineering",
       description: "Handles product development and technical operations",
-      employeeCount: 24 
+      employeeCount: 24,
     },
-    { 
-      id: 2, 
-      name: "HR", 
+    {
+      id: 2,
+      name: "HR",
       description: "Handles hiring, people operations, and employee relations",
-      employeeCount: 8 
+      employeeCount: 8,
     },
-    { 
-      id: 3, 
-      name: "Sales", 
-      description: "Handles business development, client acquisition, and revenue growth",
-      employeeCount: 15 
+    {
+      id: 3,
+      name: "Sales",
+      description:
+        "Handles business development, client acquisition, and revenue growth",
+      employeeCount: 15,
     },
   ]);
 
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [currentDept, setCurrentDept] = useState({ name: "", description: "", employeeCount: 0 });
+  const [currentDept, setCurrentDept] = useState({
+    name: "",
+    description: "",
+    employeeCount: 0,
+  });
 
   const handleAdd = () => {
     if (editingId) {
       // Update existing department
-      setDepartments(departments.map(dept => 
-        dept.id === editingId ? { ...dept, ...currentDept } : dept
-      ));
+      setDepartments(
+        departments.map((dept) =>
+          dept.id === editingId ? { ...dept, ...currentDept } : dept
+        )
+      );
       setEditingId(null);
     } else {
       // Add new department
-      const newId = Math.max(...departments.map(d => d.id), 0) + 1;
+      const newId = Math.max(...departments.map((d) => d.id), 0) + 1;
       setDepartments([...departments, { id: newId, ...currentDept }]);
     }
     setCurrentDept({ name: "", description: "", employeeCount: 0 });
@@ -73,14 +90,14 @@ export default function Departments() {
     setCurrentDept({
       name: dept.name,
       description: dept.description,
-      employeeCount: dept.employeeCount
+      employeeCount: dept.employeeCount,
     });
     setEditingId(dept.id);
     setOpen(true);
   };
 
   const handleDelete = (id) => {
-    setDepartments(departments.filter(dept => dept.id !== id));
+    setDepartments(departments.filter((dept) => dept.id !== id));
   };
 
   const handleCardClick = (deptId) => {
@@ -99,11 +116,24 @@ export default function Departments() {
   return (
     <div className="p-6 relative min-h-screen bg-gray-50">
       <div className="flex justify-between items-center mb-8">
-        <Typography variant="h4" component="h1" fontWeight="bold" color="primary">
-          Departments
-        </Typography>
+        <Box>
+          <Typography
+            variant="h4"
+            component="h1"
+            fontWeight="bold"
+            color="primary"
+          >
+            Departments
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Logged in as: {currentUser?.name} ({getUserDisplayRole(currentUser)}
+            )
+          </Typography>
+        </Box>
         <Typography variant="subtitle1" color="text.secondary">
-          {departments.length} departments, {departments.reduce((sum, dept) => sum + dept.employeeCount, 0)} employees
+          {departments.length} departments,{" "}
+          {departments.reduce((sum, dept) => sum + dept.employeeCount, 0)}{" "}
+          employees
         </Typography>
       </div>
 
@@ -118,10 +148,10 @@ export default function Departments() {
                 flexDirection: "column",
                 borderRadius: 3,
                 borderLeft: `4px solid ${getColorForDept(dept.name)}`,
-                cursor: 'pointer',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                }
+                cursor: "pointer",
+                "&:hover": {
+                  transform: "translateY(-4px)",
+                },
               }}
               onClick={() => handleCardClick(dept.id)}
             >
@@ -134,7 +164,7 @@ export default function Departments() {
                     {dept.name}
                   </Typography>
                 </div>
-                
+
                 <Typography
                   variant="body2"
                   color="text.secondary"
@@ -143,40 +173,42 @@ export default function Departments() {
                 >
                   {dept.description}
                 </Typography>
-                
+
                 <Divider sx={{ my: 2 }} />
-                
+
                 <div className="flex justify-between items-center">
-                  <Chip 
-                    label={`${dept.employeeCount} employees`} 
-                    size="small" 
+                  <Chip
+                    label={`${dept.employeeCount} employees`}
+                    size="small"
                     icon={<GroupsIcon fontSize="small" />}
                   />
-                  <div>
-                    <Tooltip title="Edit">
-                      <IconButton 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(dept);
-                        }} 
-                        size="small" 
-                        sx={{ mr: 1 }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <IconButton 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(dept.id);
-                        }} 
-                        size="small"
-                      >
-                        <DeleteIcon fontSize="small" color="error" />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
+                  {hasDepartmentAccess && (
+                    <div>
+                      <Tooltip title="Edit">
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(dept);
+                          }}
+                          size="small"
+                          sx={{ mr: 1 }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(dept.id);
+                          }}
+                          size="small"
+                        >
+                          <DeleteIcon fontSize="small" color="error" />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -186,52 +218,63 @@ export default function Departments() {
 
       {departments.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16">
-          <GroupsIcon sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+          <GroupsIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
             No departments found
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Add your first department to get started
+            {hasDepartmentAccess
+              ? "Add your first department to get started"
+              : "No departments available at the moment"}
           </Typography>
-          <Button 
-            variant="contained" 
-            startIcon={<AddIcon />}
-            onClick={() => setOpen(true)}
-          >
-            Add Department
-          </Button>
+          {hasDepartmentAccess && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setOpen(true)}
+            >
+              Add Department
+            </Button>
+          )}
         </div>
       )}
 
-      {/* Floating Add Button */}
-      <Tooltip title="Add Department">
-        <Fab
-          color="primary"
-          aria-label="add"
-          onClick={() => {
-            setCurrentDept({ name: "", description: "", employeeCount: 0 });
-            setEditingId(null);
-            setOpen(true);
-          }}
-          sx={{
-            position: 'fixed',
-            bottom: 32,
-            right: 32,
-            transform: 'scale(1)',
-            transition: 'transform 0.2s',
-            '&:hover': {
-              transform: 'scale(1.1)',
-            }
-          }}
-        >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
+      {/* Floating Add Button - Only for authorized users */}
+      {hasDepartmentAccess && (
+        <Tooltip title="Add Department">
+          <Fab
+            color="primary"
+            aria-label="add"
+            onClick={() => {
+              setCurrentDept({ name: "", description: "", employeeCount: 0 });
+              setEditingId(null);
+              setOpen(true);
+            }}
+            sx={{
+              position: "fixed",
+              bottom: 32,
+              right: 32,
+              transform: "scale(1)",
+              transition: "transform 0.2s",
+              "&:hover": {
+                transform: "scale(1.1)",
+              },
+            }}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+      )}
 
       {/* Add/Edit Department Dialog */}
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle sx={{ bgcolor: 'primary.main', color: 'white' }}>
-          {editingId ? 'Edit Department' : 'Add New Department'}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ bgcolor: "primary.main", color: "white" }}>
+          {editingId ? "Edit Department" : "Add New Department"}
         </DialogTitle>
         <DialogContent sx={{ py: 3 }}>
           <TextField
@@ -241,7 +284,9 @@ export default function Departments() {
             fullWidth
             variant="outlined"
             value={currentDept.name}
-            onChange={(e) => setCurrentDept({ ...currentDept, name: e.target.value })}
+            onChange={(e) =>
+              setCurrentDept({ ...currentDept, name: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -252,7 +297,9 @@ export default function Departments() {
             multiline
             rows={3}
             value={currentDept.description}
-            onChange={(e) => setCurrentDept({ ...currentDept, description: e.target.value })}
+            onChange={(e) =>
+              setCurrentDept({ ...currentDept, description: e.target.value })
+            }
             sx={{ mb: 2 }}
           />
           <TextField
@@ -262,20 +309,25 @@ export default function Departments() {
             variant="outlined"
             type="number"
             value={currentDept.employeeCount}
-            onChange={(e) => setCurrentDept({ ...currentDept, employeeCount: parseInt(e.target.value) || 0 })}
+            onChange={(e) =>
+              setCurrentDept({
+                ...currentDept,
+                employeeCount: parseInt(e.target.value) || 0,
+              })
+            }
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, py: 2 }}>
           <Button onClick={() => setOpen(false)} variant="outlined">
             Cancel
           </Button>
-          <Button 
-            onClick={handleAdd} 
-            variant="contained" 
+          <Button
+            onClick={handleAdd}
+            variant="contained"
             disabled={!currentDept.name.trim()}
             sx={{ px: 3 }}
           >
-            {editingId ? 'Update' : 'Add'}
+            {editingId ? "Update" : "Add"}
           </Button>
         </DialogActions>
       </Dialog>

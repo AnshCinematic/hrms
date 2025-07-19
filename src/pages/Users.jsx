@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import CreateUserDialog from "../components/users/CreateUserDialog.jsx";
 import { useUser } from "../context/UserProvider";
+import { hasPermission, getUserDisplayRole } from "../utils/roleUtils";
 
 const demoUsers = [
   {
@@ -90,6 +91,9 @@ function Users() {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const { user, loading: userLoading, error: userError } = useUser();
   const [profileOpen, setProfileOpen] = useState(false);
+
+  // Role-based access control
+  const hasUserManagementAccess = hasPermission(user, "USER_MANAGEMENT");
 
   const handleOpen = () => {
     setEditIndex(null);
@@ -175,15 +179,20 @@ function Users() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
-      <Typography
-        variant="h4"
-        fontWeight={700}
-        color="primary.main"
-        gutterBottom
-        sx={{ mb: 3 }}
-      >
-        Users
-      </Typography>
+      <Box>
+        <Typography
+          variant="h4"
+          fontWeight={700}
+          color="primary.main"
+          gutterBottom
+          sx={{ mb: 1 }}
+        >
+          Users
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Logged in as: {user?.name} ({getUserDisplayRole(user)})
+        </Typography>
+      </Box>
       <Button
         variant="outlined"
         color="primary"
@@ -192,14 +201,16 @@ function Users() {
       >
         View My Profile
       </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={handleOpen}
-        sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
-      >
-        + Create User
-      </Button>
+      {hasUserManagementAccess && (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpen}
+          sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
+        >
+          + Create User
+        </Button>
+      )}
       <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
         <CardContent>
           <TableContainer component={Box}>
@@ -243,23 +254,36 @@ function Users() {
                     <TableCell>{user.ctc}</TableCell>
                     <TableCell>{user.gender}</TableCell>
                     <TableCell>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        sx={{ mr: 1, borderRadius: 2 }}
-                        onClick={() => handleEdit(idx)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
-                        sx={{ borderRadius: 2 }}
-                        onClick={() => handleDelete(idx)}
-                      >
-                        Delete
-                      </Button>
+                      {hasUserManagementAccess ? (
+                        <>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            sx={{ mr: 1, borderRadius: 2 }}
+                            onClick={() => handleEdit(idx)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            sx={{ borderRadius: 2 }}
+                            onClick={() => handleDelete(idx)}
+                          >
+                            Delete
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          sx={{ borderRadius: 2 }}
+                          onClick={() => handleEdit(idx)}
+                        >
+                          View
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

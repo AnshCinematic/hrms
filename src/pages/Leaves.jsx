@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useUser } from "../context/UserProvider";
+import {
+  hasPermission,
+  getUserDisplayRole,
+  canViewData,
+} from "../utils/roleUtils";
 import {
   Typography,
   Button,
@@ -58,10 +64,23 @@ const USER_OPTIONS = [
 ];
 
 function Leaves() {
-  // Simulate user context - in real app this would come from authentication
-  const [currentUserId, setCurrentUserId] = useState(2); // Default to Bob (Manager) for testing
-  const currentUser = USER_OPTIONS.find((u) => u.id === currentUserId);
-  const isManager = currentUser.role === "Manager";
+  const { user: currentUser } = useUser();
+
+  // Role-based access control
+  const hasLeaveManagementAccess = hasPermission(
+    currentUser,
+    "LEAVE_MANAGEMENT"
+  );
+  const hasLeaveApprovalAccess = hasPermission(currentUser, "LEAVE_APPROVAL");
+
+  // For demo purposes, we'll simulate different users based on current user role
+  const getCurrentUserId = () => {
+    if (hasPermission(currentUser, "LEAVE_APPROVAL")) return 2; // Manager/HR/Admin
+    return 1; // Employee
+  };
+
+  const currentUserId = getCurrentUserId();
+  const demoUser = USER_OPTIONS.find((u) => u.id === currentUserId);
 
   // Leave state
   const [leaves, setLeaves] = useState([]);
@@ -432,7 +451,7 @@ function Leaves() {
     setLeaves([...leaves, newLeave]);
 
     // Simulate email notification to manager
-    if (isManager) {
+    if (hasLeaveApprovalAccess) {
       console.log(
         `Email sent to ${currentUser.email}: Leave request submitted`
       );
@@ -526,11 +545,11 @@ function Leaves() {
   // Filtered views
   console.log("Current user:", currentUser);
   console.log("All leaves:", leaves);
-  console.log("Is manager:", isManager);
+  console.log("Has leave approval access:", hasLeaveApprovalAccess);
 
   const myLeaves = leaves.filter(
     (l) =>
-      l.userId === currentUser.id &&
+      l.userId === currentUserId &&
       (!myLeavesSearch ||
         l.type.toLowerCase().includes(myLeavesSearch.toLowerCase()) ||
         l.reason.toLowerCase().includes(myLeavesSearch.toLowerCase())) &&
@@ -540,11 +559,11 @@ function Leaves() {
 
   console.log("My leaves:", myLeaves);
 
-  const pendingLeaves = isManager
+  const pendingLeaves = hasLeaveApprovalAccess
     ? leaves.filter(
         (l) =>
           l.status === "Pending" &&
-          l.userId !== currentUser.id &&
+          l.userId !== currentUserId &&
           (!pendingLeavesSearch ||
             l.type.toLowerCase().includes(pendingLeavesSearch.toLowerCase()) ||
             l.reason
@@ -600,9 +619,15 @@ function Leaves() {
           mb: 3,
         }}
       >
-        <Typography variant="h4" fontWeight={700} color="primary.main">
-          Leave Management
-        </Typography>
+        <Box>
+          <Typography variant="h4" fontWeight={700} color="primary.main">
+            Leave Management
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Logged in as: {currentUser?.name} ({getUserDisplayRole(currentUser)}
+            )
+          </Typography>
+        </Box>
         <Button
           variant="contained"
           color="primary"
@@ -613,8 +638,8 @@ function Leaves() {
         </Button>
       </Box>
 
-      {/* Pending Approvals for Managers */}
-      {isManager && (
+      {/* Pending Approvals for Managers/HR/Admin */}
+      {hasLeaveApprovalAccess && (
         <Card elevation={1} sx={{ borderRadius: 3, mb: 4 }}>
           <CardContent>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>

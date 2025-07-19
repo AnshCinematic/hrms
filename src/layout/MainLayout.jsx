@@ -24,17 +24,25 @@ import { VerifiedUserOutlined } from "@mui/icons-material";
 import React from "react";
 import { useUser } from "../context/UserProvider";
 import CreateUserDialog from "../components/users/CreateUserDialog.jsx";
+import { hasPermission, getUserDisplayRole } from "../utils/roleUtils";
 
 const drawerWidth = 240;
 
-const navItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-  { text: "Leaves", icon: <CalendarMonthIcon />, path: "/leaves" },
-  { text: "Jobs", icon: <WorkIcon />, path: "/jobs" },
-  { text: "Users", icon: <VerifiedUserOutlined />, path: "/users" },
-  { text: "Departments", icon: <LayersIcon />, path: "/departments" },
-  { text: "Payroll", icon: <WorkIcon />, path: "/payroll" },
-];
+// Navigation items with role-based access control
+const getNavItems = (user) => {
+  // Always show these basic items for all users
+  const baseItems = [
+    { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
+    { text: "Leaves", icon: <CalendarMonthIcon />, path: "/leaves" },
+    { text: "Payroll", icon: <WorkIcon />, path: "/payroll" }, // All users can access payroll (role-based content inside)
+    { text: "Departments", icon: <LayersIcon />, path: "/departments" }, // All users can view departments (role-based content inside)
+    { text: "Users", icon: <VerifiedUserOutlined />, path: "/users" }, // All users can view their profile (role-based content inside)
+    { text: "Jobs", icon: <WorkIcon />, path: "/jobs" }, // All users can view jobs (role-based content inside)
+  ];
+
+  // Return base items - role-based content is handled inside each page
+  return baseItems;
+};
 
 const APP_NAME = "HRMS Portal";
 const LOGO = (
@@ -103,14 +111,20 @@ export default function MainLayout() {
             onClick={() => setProfileOpen(true)}
           >
             <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.light" }}>
-              {user?.username?.[0] || user?.fullName?.[0] || "A"}
+              {user?.name?.[0] ||
+                user?.username?.[0] ||
+                user?.fullName?.[0] ||
+                "A"}
             </Avatar>
             <Box>
               <Typography variant="body1" fontWeight={600} color="text.primary">
-                {user?.username || user?.fullName || "Alice Smith"}
+                {user?.name ||
+                  user?.username ||
+                  user?.fullName ||
+                  "Alice Smith"}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {user?.designation || user?.role || "Admin"}
+                {getUserDisplayRole(user)}
               </Typography>
             </Box>
           </Box>
@@ -147,7 +161,7 @@ export default function MainLayout() {
               NAVIGATION
             </Typography> */}
             <List>
-              {navItems.map((item) => (
+              {getNavItems(user).map((item) => (
                 <ListItem key={item.text} disablePadding sx={{ mb: 1 }}>
                   <ListItemButton
                     component={Link}
@@ -197,14 +211,20 @@ export default function MainLayout() {
             onClick={() => setProfileOpen(true)}
           >
             <Avatar sx={{ width: 32, height: 32, bgcolor: "primary.light" }}>
-              {user?.username?.[0] || user?.fullName?.[0] || "A"}
+              {user?.name?.[0] ||
+                user?.username?.[0] ||
+                user?.fullName?.[0] ||
+                "A"}
             </Avatar>
             <Box>
               <Typography variant="body2" fontWeight={600} color="#fff">
-                {user?.username || user?.fullName || "Alice Smith"}
+                {user?.name ||
+                  user?.username ||
+                  user?.fullName ||
+                  "Alice Smith"}
               </Typography>
               <Typography variant="caption" color="#b0b8c1">
-                {user?.designation || user?.role || "Admin"}
+                {getUserDisplayRole(user)}
               </Typography>
             </Box>
           </Box>

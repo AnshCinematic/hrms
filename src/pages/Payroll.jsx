@@ -65,6 +65,7 @@ import {
 } from "@mui/icons-material";
 import jsPDF from "jspdf";
 import { useUser } from "../context/UserProvider";
+import { hasPermission, getUserDisplayRole } from "../utils/roleUtils";
 
 // Professional company configuration
 const COMPANY_CONFIG = {
@@ -216,21 +217,8 @@ const TAX_SLABS = [
 function Payroll() {
   const { user: currentUser } = useUser();
 
-  // Role-based access control
-  const isAccountant =
-    currentUser?.role?.includes("ACCOUNTANT") ||
-    currentUser?.role === "ACCOUNTANT";
-  const isManager =
-    currentUser?.role?.includes("MANAGER") || currentUser?.role === "MANAGER";
-  const isHR =
-    currentUser?.role?.includes("HR_ADMIN") || currentUser?.role === "HR_ADMIN";
-  const isAdmin =
-    currentUser?.role?.includes("ADMIN") || currentUser?.role === "ADMIN";
-  const isEmployee =
-    currentUser?.role?.includes("EMPLOYEE") || currentUser?.role === "EMPLOYEE";
-
-  // Check if user has access to payroll management features
-  const hasPayrollAccess = isAccountant || isHR || isAdmin;
+  // Role-based access control using utility functions
+  const hasPayrollAccess = hasPermission(currentUser, "PAYROLL_MANAGEMENT");
 
   // State management
   const [activeTab, setActiveTab] = useState(0);
@@ -622,8 +610,8 @@ function Payroll() {
             Payroll Management System
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Logged in as: {currentUser?.name} (
-            {currentUser?.role?.join(", ") || currentUser?.role})
+            Logged in as: {currentUser?.name} ({getUserDisplayRole(currentUser)}
+            )
           </Typography>
         </Box>
         {hasPayrollAccess && (
