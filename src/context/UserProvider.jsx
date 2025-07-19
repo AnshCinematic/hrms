@@ -30,7 +30,9 @@ export default function UserProvider({ children }) {
       employment_type: "Full-time",
       work_location: "Bengaluru",
       base_salary: "1800000",
-      role: ["ADMIN", "HR_ADMIN"],
+      role: ["EMPLOYEE"],
+      // role: ["ADMIN", "HR_ADMIN", "ACCOUNTANT"],
+      // role: ["ADMIN", "HR_ADMIN"],
       account: {
         id: "c7b2f739-2cbf-4437-9b0b-d36c8adf683a",
         account_holder_name: "Kushal Chakraborty",
