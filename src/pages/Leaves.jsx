@@ -58,8 +58,8 @@ const USER_OPTIONS = [
 ];
 
 function Leaves() {
-  // Simulate user context
-  const [currentUserId, setCurrentUserId] = useState(1); // Default to Alice
+  // Simulate user context - in real app this would come from authentication
+  const [currentUserId, setCurrentUserId] = useState(2); // Default to Bob (Manager) for testing
   const currentUser = USER_OPTIONS.find((u) => u.id === currentUserId);
   const isManager = currentUser.role === "Manager";
 
@@ -370,10 +370,13 @@ function Leaves() {
     severity: "success",
   });
 
-  // Search/filter state
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
+  // Search/filter state - separate for each table
+  const [myLeavesSearch, setMyLeavesSearch] = useState("");
+  const [myLeavesStatusFilter, setMyLeavesStatusFilter] = useState("");
+  const [myLeavesTypeFilter, setMyLeavesTypeFilter] = useState("");
+
+  const [pendingLeavesSearch, setPendingLeavesSearch] = useState("");
+  const [pendingLeavesTypeFilter, setPendingLeavesTypeFilter] = useState("");
 
   // Handlers
   const handleApplyOpen = () => setApplyOpen(true);
@@ -528,11 +531,11 @@ function Leaves() {
   const myLeaves = leaves.filter(
     (l) =>
       l.userId === currentUser.id &&
-      (!search ||
-        l.type.toLowerCase().includes(search.toLowerCase()) ||
-        l.reason.toLowerCase().includes(search.toLowerCase())) &&
-      (!statusFilter || l.status === statusFilter) &&
-      (!typeFilter || l.type === typeFilter)
+      (!myLeavesSearch ||
+        l.type.toLowerCase().includes(myLeavesSearch.toLowerCase()) ||
+        l.reason.toLowerCase().includes(myLeavesSearch.toLowerCase())) &&
+      (!myLeavesStatusFilter || l.status === myLeavesStatusFilter) &&
+      (!myLeavesTypeFilter || l.type === myLeavesTypeFilter)
   );
 
   console.log("My leaves:", myLeaves);
@@ -542,11 +545,15 @@ function Leaves() {
         (l) =>
           l.status === "Pending" &&
           l.userId !== currentUser.id &&
-          (!search ||
-            l.type.toLowerCase().includes(search.toLowerCase()) ||
-            l.reason.toLowerCase().includes(search.toLowerCase()) ||
-            l.userName.toLowerCase().includes(search.toLowerCase())) &&
-          (!typeFilter || l.type === typeFilter)
+          (!pendingLeavesSearch ||
+            l.type.toLowerCase().includes(pendingLeavesSearch.toLowerCase()) ||
+            l.reason
+              .toLowerCase()
+              .includes(pendingLeavesSearch.toLowerCase()) ||
+            l.userName
+              .toLowerCase()
+              .includes(pendingLeavesSearch.toLowerCase())) &&
+          (!pendingLeavesTypeFilter || l.type === pendingLeavesTypeFilter)
       )
     : [];
 
@@ -584,94 +591,30 @@ function Leaves() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 3 }, maxWidth: 1200, mx: "auto" }}>
-      <Typography
-        variant="h4"
-        fontWeight={700}
-        color="primary.main"
-        gutterBottom
-        sx={{ mb: 3 }}
+      {/* Header and Apply Leave Button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
       >
-        Leave Management
-      </Typography>
-
-      {/* User Selection and Filters */}
-      <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
-        <CardContent>
-          <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
-            <Grid item>
-              <FormControl size="small">
-                <InputLabel>User</InputLabel>
-                <Select
-                  value={currentUserId}
-                  label="User"
-                  onChange={(e) => setCurrentUserId(Number(e.target.value))}
-                  sx={{ minWidth: 180 }}
-                >
-                  {USER_OPTIONS.map((u) => (
-                    <MenuItem key={u.id} value={u.id}>
-                      {u.name} ({u.role})
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item>
-              <TextField
-                size="small"
-                label="Search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={{ minWidth: 180 }}
-              />
-            </Grid>
-            <Grid item>
-              <FormControl size="small">
-                <InputLabel>Status</InputLabel>
-                <Select
-                  value={statusFilter}
-                  label="Status"
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  sx={{ minWidth: 120 }}
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Pending">Pending</MenuItem>
-                  <MenuItem value="Approved">Approved</MenuItem>
-                  <MenuItem value="Rejected">Rejected</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item>
-              <FormControl size="small">
-                <InputLabel>Type</InputLabel>
-                <Select
-                  value={typeFilter}
-                  label="Type"
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  sx={{ minWidth: 150 }}
-                >
-                  <MenuItem value="">All</MenuItem>
-                  {LEAVE_TYPES.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleApplyOpen}
-            sx={{ borderRadius: 2, fontWeight: 600 }}
-          >
-            Apply Leave
-          </Button>
-        </CardContent>
-      </Card>
+        <Typography variant="h4" fontWeight={700} color="primary.main">
+          Leave Management
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleApplyOpen}
+          sx={{ borderRadius: 2, fontWeight: 600 }}
+        >
+          Apply Leave
+        </Button>
+      </Box>
 
       {/* Pending Approvals for Managers */}
-      {isManager && pendingLeaves.length > 0 && (
+      {isManager && (
         <Card elevation={1} sx={{ borderRadius: 3, mb: 4 }}>
           <CardContent>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -687,6 +630,37 @@ function Leaves() {
                 <Notifications color="action" />
               </Badge>
             </Box>
+
+            {/* Pending Approvals Filters */}
+            <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+              <Grid item>
+                <TextField
+                  size="small"
+                  label="Search Employee/Reason"
+                  value={pendingLeavesSearch}
+                  onChange={(e) => setPendingLeavesSearch(e.target.value)}
+                  sx={{ minWidth: 200 }}
+                />
+              </Grid>
+              <Grid item>
+                <FormControl size="small">
+                  <InputLabel>Leave Type</InputLabel>
+                  <Select
+                    value={pendingLeavesTypeFilter}
+                    label="Leave Type"
+                    onChange={(e) => setPendingLeavesTypeFilter(e.target.value)}
+                    sx={{ minWidth: 150 }}
+                  >
+                    <MenuItem value="">All Types</MenuItem>
+                    {LEAVE_TYPES.map((type) => (
+                      <MenuItem key={type} value={type}>
+                        {type}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
             <Table>
               <TableHead>
                 <TableRow>
@@ -702,73 +676,93 @@ function Leaves() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {pendingLeaves.map((l) => (
-                  <TableRow
-                    key={l.id}
-                    sx={{ "&:hover": { bgcolor: "action.hover" } }}
-                  >
-                    <TableCell>
-                      <Box>
-                        <Typography variant="body2" fontWeight={600}>
-                          {l.userName}
+                {pendingLeaves.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9}>
+                      <Box sx={{ textAlign: "center", py: 2 }}>
+                        <Typography variant="body1" color="text.secondary">
+                          No pending leave requests to approve
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {l.userEmail}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>{l.date}</TableCell>
-                    <TableCell>{l.endDate || "-"}</TableCell>
-                    <TableCell>{l.type}</TableCell>
-                    <TableCell>
-                      <Tooltip title={l.reason}>
                         <Typography
-                          sx={{
-                            maxWidth: 150,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ mt: 1 }}
                         >
-                          {l.reason}
+                          When employees apply for leaves, they will appear here
+                          for your approval
                         </Typography>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell>{l.halfDay ? "Yes" : "No"}</TableCell>
-                    <TableCell>{formatDate(l.appliedAt)}</TableCell>
-                    <TableCell>{getStatusChip(l.status)}</TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        <Tooltip title="View Details">
-                          <IconButton
-                            size="small"
-                            onClick={() => handleDetailsOpen(l)}
-                            color="primary"
-                          >
-                            <Visibility />
-                          </IconButton>
-                        </Tooltip>
-                        <Button
-                          size="small"
-                          color="success"
-                          variant="outlined"
-                          onClick={() => handleApprovalOpen(l, "approve")}
-                          startIcon={<CheckCircle />}
-                        >
-                          Approve
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          variant="outlined"
-                          onClick={() => handleApprovalOpen(l, "reject")}
-                          startIcon={<Cancel />}
-                        >
-                          Reject
-                        </Button>
                       </Box>
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  pendingLeaves.map((l) => (
+                    <TableRow
+                      key={l.id}
+                      sx={{ "&:hover": { bgcolor: "action.hover" } }}
+                    >
+                      <TableCell>
+                        <Box>
+                          <Typography variant="body2" fontWeight={600}>
+                            {l.userName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {l.userEmail}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>{l.date}</TableCell>
+                      <TableCell>{l.endDate || "-"}</TableCell>
+                      <TableCell>{l.type}</TableCell>
+                      <TableCell>
+                        <Tooltip title={l.reason}>
+                          <Typography
+                            sx={{
+                              maxWidth: 150,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {l.reason}
+                          </Typography>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>{l.halfDay ? "Yes" : "No"}</TableCell>
+                      <TableCell>{formatDate(l.appliedAt)}</TableCell>
+                      <TableCell>{getStatusChip(l.status)}</TableCell>
+                      <TableCell>
+                        <Box sx={{ display: "flex", gap: 1 }}>
+                          <Tooltip title="View Details">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDetailsOpen(l)}
+                              color="primary"
+                            >
+                              <Visibility />
+                            </IconButton>
+                          </Tooltip>
+                          <Button
+                            size="small"
+                            color="success"
+                            variant="outlined"
+                            onClick={() => handleApprovalOpen(l, "approve")}
+                            startIcon={<CheckCircle />}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                            onClick={() => handleApprovalOpen(l, "reject")}
+                            startIcon={<Cancel />}
+                          >
+                            Reject
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -784,6 +778,53 @@ function Leaves() {
           >
             My Leave History
           </Typography>
+
+          {/* My Leave History Filters */}
+          <Grid container spacing={2} alignItems="center" sx={{ mb: 3 }}>
+            <Grid item>
+              <TextField
+                size="small"
+                label="Search Reason/Type"
+                value={myLeavesSearch}
+                onChange={(e) => setMyLeavesSearch(e.target.value)}
+                sx={{ minWidth: 200 }}
+              />
+            </Grid>
+            <Grid item>
+              <FormControl size="small">
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={myLeavesStatusFilter}
+                  label="Status"
+                  onChange={(e) => setMyLeavesStatusFilter(e.target.value)}
+                  sx={{ minWidth: 120 }}
+                >
+                  <MenuItem value="">All Status</MenuItem>
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Approved">Approved</MenuItem>
+                  <MenuItem value="Rejected">Rejected</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item>
+              <FormControl size="small">
+                <InputLabel>Leave Type</InputLabel>
+                <Select
+                  value={myLeavesTypeFilter}
+                  label="Leave Type"
+                  onChange={(e) => setMyLeavesTypeFilter(e.target.value)}
+                  sx={{ minWidth: 150 }}
+                >
+                  <MenuItem value="">All Types</MenuItem>
+                  {LEAVE_TYPES.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
           <Table>
             <TableHead>
               <TableRow>
