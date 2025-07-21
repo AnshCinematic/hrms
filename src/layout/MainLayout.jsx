@@ -30,17 +30,16 @@ const drawerWidth = 240;
 
 // Navigation items with role-based access control
 const getNavItems = (user) => {
-  // Always show these basic items for all users
+  // Base items for all users
   const baseItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Leaves", icon: <CalendarMonthIcon />, path: "/leaves" },
-    { text: "Payroll", icon: <WorkIcon />, path: "/payroll" }, // All users can access payroll (role-based content inside)
-    { text: "Departments", icon: <LayersIcon />, path: "/departments" }, // All users can view departments (role-based content inside)
-    { text: "Users", icon: <VerifiedUserOutlined />, path: "/users" }, // All users can view their profile (role-based content inside)
-    { text: "Jobs", icon: <WorkIcon />, path: "/jobs" }, // All users can view jobs (role-based content inside)
+    { text: "Payroll", icon: <WorkIcon />, path: "/payroll" },
+    { text: "Departments", icon: <LayersIcon />, path: "/departments" },
+    { text: "Policies", icon: <VerifiedUserOutlined />, path: "/policies" },
+    { text: "Jobs", icon: <WorkIcon />, path: "/jobs" },
+    { text: "Users", icon: <VerifiedUserOutlined />, path: "/users" },
   ];
-
-  // Return base items - role-based content is handled inside each page
   return baseItems;
 };
 

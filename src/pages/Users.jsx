@@ -20,7 +20,11 @@ import {
 } from "@mui/material";
 import CreateUserDialog from "../components/users/CreateUserDialog.jsx";
 import { useUser } from "../context/UserProvider";
-import { hasPermission, getUserDisplayRole } from "../utils/roleUtils";
+import {
+  hasPermission,
+  getUserDisplayRole,
+  hasAnyRole,
+} from "../utils/roleUtils";
 
 const demoUsers = [
   {
@@ -94,6 +98,7 @@ function Users() {
 
   // Role-based access control
   const hasUserManagementAccess = hasPermission(user, "USER_MANAGEMENT");
+  const canManageUsers = hasAnyRole(user, ["ADMIN", "HR"]);
 
   const handleOpen = () => {
     setEditIndex(null);
@@ -201,105 +206,121 @@ function Users() {
       >
         View My Profile
       </Button>
-      {hasUserManagementAccess && (
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleOpen}
-          sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
-        >
-          + Create User
-        </Button>
+      {canManageUsers ? (
+        <>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpen}
+            sx={{ mb: 2, borderRadius: 2, fontWeight: 600 }}
+          >
+            + Create User
+          </Button>
+          <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
+            <CardContent>
+              <TableContainer component={Box}>
+                <Table>
+                  <TableHead sx={{ bgcolor: "#f4f6f8" }}>
+                    <TableRow>
+                      <TableCell>ID</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Role</TableCell>
+                      <TableCell>Department</TableCell>
+                      <TableCell>DOB</TableCell>
+                      <TableCell>DOJ</TableCell>
+                      <TableCell>CTC</TableCell>
+                      <TableCell>Gender</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {users.map((user, idx) => (
+                      <TableRow key={user.id} hover>
+                        <TableCell>{user.id}</TableCell>
+                        <TableCell>{user.fullName}</TableCell>
+                        <TableCell>{user.email}</TableCell>
+                        <TableCell>{user.role}</TableCell>
+                        <TableCell>{user.department}</TableCell>
+                        <TableCell>
+                          {user.dob
+                            ? typeof user.dob === "string"
+                              ? user.dob
+                              : user.dob.toLocaleDateString()
+                            : ""}
+                        </TableCell>
+                        <TableCell>
+                          {user.doj
+                            ? typeof user.doj === "string"
+                              ? user.doj
+                              : user.doj.toLocaleDateString()
+                            : ""}
+                        </TableCell>
+                        <TableCell>{user.ctc}</TableCell>
+                        <TableCell>{user.gender}</TableCell>
+                        <TableCell>
+                          {hasUserManagementAccess ? (
+                            <>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                sx={{ mr: 1, borderRadius: 2 }}
+                                onClick={() => handleEdit(idx)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                color="error"
+                                sx={{ borderRadius: 2 }}
+                                onClick={() => handleDelete(idx)}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              sx={{ borderRadius: 2 }}
+                              onClick={() => handleEdit(idx)}
+                            >
+                              View
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+          <CreateUserDialog
+            open={open}
+            onClose={handleClose}
+            onCreate={handleCreateUser}
+            formData={formData}
+            setFormData={setFormData}
+            editMode={editIndex !== null}
+          />
+        </>
+      ) : (
+        <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
+          <CardContent>
+            <Box sx={{ textAlign: "center", py: 8 }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Access Restricted
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                You do not have access to the full user list. You can only view
+                your own profile.
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
       )}
-      <Card elevation={2} sx={{ borderRadius: 3, mb: 4 }}>
-        <CardContent>
-          <TableContainer component={Box}>
-            <Table>
-              <TableHead sx={{ bgcolor: "#f4f6f8" }}>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Role</TableCell>
-                  <TableCell>Department</TableCell>
-                  <TableCell>DOB</TableCell>
-                  <TableCell>DOJ</TableCell>
-                  <TableCell>CTC</TableCell>
-                  <TableCell>Gender</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {users.map((user, idx) => (
-                  <TableRow key={user.id} hover>
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.fullName}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role}</TableCell>
-                    <TableCell>{user.department}</TableCell>
-                    <TableCell>
-                      {user.dob
-                        ? typeof user.dob === "string"
-                          ? user.dob
-                          : user.dob.toLocaleDateString()
-                        : ""}
-                    </TableCell>
-                    <TableCell>
-                      {user.doj
-                        ? typeof user.doj === "string"
-                          ? user.doj
-                          : user.doj.toLocaleDateString()
-                        : ""}
-                    </TableCell>
-                    <TableCell>{user.ctc}</TableCell>
-                    <TableCell>{user.gender}</TableCell>
-                    <TableCell>
-                      {hasUserManagementAccess ? (
-                        <>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            sx={{ mr: 1, borderRadius: 2 }}
-                            onClick={() => handleEdit(idx)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="error"
-                            sx={{ borderRadius: 2 }}
-                            onClick={() => handleDelete(idx)}
-                          >
-                            Delete
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          sx={{ borderRadius: 2 }}
-                          onClick={() => handleEdit(idx)}
-                        >
-                          View
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-      <CreateUserDialog
-        open={open}
-        onClose={handleClose}
-        onCreate={handleCreateUser}
-        formData={formData}
-        setFormData={setFormData}
-        editMode={editIndex !== null}
-      />
       <CreateUserDialog
         open={profileOpen}
         onClose={() => setProfileOpen(false)}
