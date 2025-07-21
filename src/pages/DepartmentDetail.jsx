@@ -37,10 +37,13 @@ import {
   Send as SendIcon,
 } from "@mui/icons-material";
 import { blue, green, orange } from "@mui/material/colors";
+import { useUser } from "../context/UserProvider";
+import { hasAnyRole } from "../utils/roleUtils";
 
 export default function DepartmentDetail() {
   const { deptId } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useUser();
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -146,14 +149,16 @@ export default function DepartmentDetail() {
             <Typography variant="h5" fontWeight={700} color="primary.main">
               {deptInfo.name}
             </Typography>
-            <Button
-              size="small"
-              variant="outlined"
-              sx={{ ml: "auto" }}
-              onClick={() => setEditMode(!editMode)}
-            >
-              {editMode ? "Cancel" : "Edit"}
-            </Button>
+            {hasAnyRole(currentUser, ["ADMIN", "HR"]) && (
+              <Button
+                size="small"
+                variant="outlined"
+                sx={{ ml: "auto" }}
+                onClick={() => setEditMode(!editMode)}
+              >
+                {editMode ? "Cancel" : "Edit"}
+              </Button>
+            )}
           </Box>
           {editMode ? (
             <Box
@@ -241,25 +246,27 @@ export default function DepartmentDetail() {
           />
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <TextField
-            size="small"
-            placeholder="Search employees..."
-            InputProps={{
-              startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
-            }}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: 250 }}
-          />
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenDialog(true)}
-          >
-            Add Employee
-          </Button>
-        </Box>
+        {hasAnyRole(currentUser, ["ADMIN", "HR"]) && (
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <TextField
+              size="small"
+              placeholder="Search employees..."
+              InputProps={{
+                startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+              }}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: 250 }}
+            />
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setOpenDialog(true)}
+            >
+              Add Employee
+            </Button>
+          </Box>
+        )}
       </Box>
 
       <Divider sx={{ mb: 3 }} />
@@ -326,31 +333,35 @@ export default function DepartmentDetail() {
                     {new Date(emp.joinDate).toLocaleDateString()}
                   </TableCell>
                   <TableCell align="right">
-                    <Tooltip title="Edit">
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEmployee(emp);
-                          setOpenDialog(true);
-                        }}
-                        size="small"
-                        sx={{ color: "text.secondary" }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteEmployee(emp.id);
-                        }}
-                        size="small"
-                        sx={{ color: "error.main" }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
+                    {hasAnyRole(currentUser, ["ADMIN", "HR"]) && (
+                      <>
+                        <Tooltip title="Edit">
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedEmployee(emp);
+                              setOpenDialog(true);
+                            }}
+                            size="small"
+                            sx={{ color: "text.secondary" }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteEmployee(emp.id);
+                            }}
+                            size="small"
+                            sx={{ color: "error.main" }}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -375,89 +386,91 @@ export default function DepartmentDetail() {
       </Paper>
 
       {/* Add/Edit Employee Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: "primary.main",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
+      {hasAnyRole(currentUser, ["ADMIN", "HR"]) && (
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          fullWidth
+          maxWidth="sm"
         >
-          <PersonIcon />
-          {selectedEmployee ? "Edit Employee" : "Add New Employee"}
-        </DialogTitle>
-        <DialogContent sx={{ py: 3 }}>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Full Name"
-            fullWidth
-            variant="outlined"
-            defaultValue={selectedEmployee?.name || ""}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Employee ID"
-            fullWidth
-            variant="outlined"
-            defaultValue={selectedEmployee?.empId || ""}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Designation"
-            fullWidth
-            variant="outlined"
-            defaultValue={selectedEmployee?.designation || ""}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Email"
-            fullWidth
-            variant="outlined"
-            defaultValue={selectedEmployee?.email || ""}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Phone"
-            fullWidth
-            variant="outlined"
-            defaultValue={selectedEmployee?.phone || ""}
-          />
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            onClick={() => {
-              setOpenDialog(false);
-              setSelectedEmployee(null);
-            }}
-            variant="outlined"
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
+          <DialogTitle
             sx={{
               bgcolor: "primary.main",
-              "&:hover": {
-                bgcolor: "primary.dark",
-              },
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
             }}
           >
-            {selectedEmployee ? "Update" : "Add"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <PersonIcon />
+            {selectedEmployee ? "Edit Employee" : "Add New Employee"}
+          </DialogTitle>
+          <DialogContent sx={{ py: 3 }}>
+            <TextField
+              autoFocus
+              margin="dense"
+              label="Full Name"
+              fullWidth
+              variant="outlined"
+              defaultValue={selectedEmployee?.name || ""}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Employee ID"
+              fullWidth
+              variant="outlined"
+              defaultValue={selectedEmployee?.empId || ""}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Designation"
+              fullWidth
+              variant="outlined"
+              defaultValue={selectedEmployee?.designation || ""}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Email"
+              fullWidth
+              variant="outlined"
+              defaultValue={selectedEmployee?.email || ""}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              margin="dense"
+              label="Phone"
+              fullWidth
+              variant="outlined"
+              defaultValue={selectedEmployee?.phone || ""}
+            />
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2 }}>
+            <Button
+              onClick={() => {
+                setOpenDialog(false);
+                setSelectedEmployee(null);
+              }}
+              variant="outlined"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                bgcolor: "primary.main",
+                "&:hover": {
+                  bgcolor: "primary.dark",
+                },
+              }}
+            >
+              {selectedEmployee ? "Update" : "Add"}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
 
       <Snackbar
         open={snackbar.open}

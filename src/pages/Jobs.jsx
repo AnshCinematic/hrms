@@ -36,6 +36,8 @@ import {
 } from "@mui/icons-material";
 import { blue, green, orange, purple } from "@mui/material/colors";
 import { useNavigate } from "react-router-dom";
+import { getUserDisplayRole, hasAnyRole } from "../utils/roleUtils";
+import { useUser } from "../context/UserProvider";
 
 // Slack API utility function
 const token = import.meta.env.REACT_APP_SLACK_BOT_TOKEN;
@@ -71,6 +73,7 @@ const postToSlack = async (messageData) => {
 };
 
 export default function Jobs() {
+  const { user: currentUser } = useUser();
   const [vacancies, setVacancies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -279,6 +282,8 @@ export default function Jobs() {
     new Set((vacancies || []).map((v) => v.department))
   ).filter(Boolean);
 
+  const canManageJobs = hasAnyRole(currentUser, ["ADMIN", "HR"]);
+
   return (
     <Box sx={{ p: 3 }}>
       <Box
@@ -339,15 +344,17 @@ export default function Jobs() {
           >
             Refresh
           </Button>
-          <Button
-            variant="contained"
-            startIcon={<SendIcon />}
-            color="primary"
-            onClick={handleDialogOpen}
-            sx={{ fontWeight: 600, borderRadius: 2 }}
-          >
-            + Create Job
-          </Button>
+          {canManageJobs && (
+            <Button
+              variant="contained"
+              startIcon={<SendIcon />}
+              color="primary"
+              onClick={handleDialogOpen}
+              sx={{ fontWeight: 600, borderRadius: 2 }}
+            >
+              + Create Job
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -494,88 +501,90 @@ export default function Jobs() {
       )}
 
       {/* Job Creation Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={handleDialogClose}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle
-          sx={{
-            bgcolor: "primary.main",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-          }}
+      {canManageJobs && (
+        <Dialog
+          open={openDialog}
+          onClose={handleDialogClose}
+          fullWidth
+          maxWidth="sm"
         >
-          <SendIcon />
-          Create New Job
-        </DialogTitle>
-        <form onSubmit={handleCreateJob}>
-          <DialogContent sx={{ py: 3 }}>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Role/Position"
-              name="role"
-              fullWidth
-              variant="outlined"
-              value={form.role}
-              onChange={handleFormChange}
-              sx={{ mb: 2 }}
-              required
-            />
-            <TextField
-              margin="dense"
-              label="Department"
-              name="department"
-              fullWidth
-              variant="outlined"
-              value={form.department}
-              onChange={handleFormChange}
-              sx={{ mb: 2 }}
-              required
-            />
-            <TextField
-              margin="dense"
-              label="Job Description"
-              name="description"
-              fullWidth
-              variant="outlined"
-              multiline
-              rows={4}
-              value={form.description}
-              onChange={handleFormChange}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Last Date to Apply"
-              name="lastDate"
-              fullWidth
-              variant="outlined"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={form.lastDate}
-              onChange={handleFormChange}
-            />
-          </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2 }}>
-            <Button onClick={handleDialogClose} variant="outlined">
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              startIcon={<SendIcon />}
-              sx={{ fontWeight: 600 }}
-            >
-              Create
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+          <DialogTitle
+            sx={{
+              bgcolor: "primary.main",
+              color: "white",
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <SendIcon />
+            Create New Job
+          </DialogTitle>
+          <form onSubmit={handleCreateJob}>
+            <DialogContent sx={{ py: 3 }}>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Role/Position"
+                name="role"
+                fullWidth
+                variant="outlined"
+                value={form.role}
+                onChange={handleFormChange}
+                sx={{ mb: 2 }}
+                required
+              />
+              <TextField
+                margin="dense"
+                label="Department"
+                name="department"
+                fullWidth
+                variant="outlined"
+                value={form.department}
+                onChange={handleFormChange}
+                sx={{ mb: 2 }}
+                required
+              />
+              <TextField
+                margin="dense"
+                label="Job Description"
+                name="description"
+                fullWidth
+                variant="outlined"
+                multiline
+                rows={4}
+                value={form.description}
+                onChange={handleFormChange}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                margin="dense"
+                label="Last Date to Apply"
+                name="lastDate"
+                fullWidth
+                variant="outlined"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={form.lastDate}
+                onChange={handleFormChange}
+              />
+            </DialogContent>
+            <DialogActions sx={{ px: 3, py: 2 }}>
+              <Button onClick={handleDialogClose} variant="outlined">
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                startIcon={<SendIcon />}
+                sx={{ fontWeight: 600 }}
+              >
+                Create
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
+      )}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
